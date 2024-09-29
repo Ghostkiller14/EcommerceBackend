@@ -1,40 +1,27 @@
-
 using Microsoft.AspNetCore.Http.HttpResults;
 
 public class UserServices{
-
-
- // public readonly static List<User> _user  = new List<User>();
-
-   private readonly AppDbContext _appDbContext;
-
-      public UserServices(AppDbContext appDbContext){
-          _appDbContext = appDbContext;
-      }
-
+  private readonly AppDbContext _appDbContext;
+  public UserServices(AppDbContext appDbContext){
+    _appDbContext = appDbContext;
+  }
 
   public async Task<User> CreateUserServiceAsync(CreateUserDto createUser){
 
-
-      var user = new User{
-
-        UserId = Guid.NewGuid(),
-        UserName = createUser.UserName,
-        Password = createUser.Password,
-        Email = createUser.Email,
-        Address = createUser.Address,
-        Age = createUser.Age,
-      };
+    var user = new User{
+      UserId = Guid.NewGuid(),
+      UserName = createUser.UserName,
+      Password = createUser.Password,
+      Email = createUser.Email,
+      Address = createUser.Address,
+      Age = createUser.Age,
+    };
 
     await _appDbContext.Users.AddAsync(user);
     await _appDbContext.SaveChangesAsync();
 
     return user;
-
   }
-
-
-
 //   public List<UserDto> GetUsersService(){
 
 
@@ -96,7 +83,4 @@ public class UserServices{
 //     return true;
 //   }
 
-
-
-
- }
+}
