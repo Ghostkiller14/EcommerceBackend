@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 
 [ApiController]
-[Route("/api/users")]
+[Route("/api/v1/users")]
 
 
 public class UserControllers: ControllerBase {

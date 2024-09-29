@@ -12,6 +12,9 @@ builder.Services.AddScoped<UserServices>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+builder.Services.AddAutoMapper(typeof(Program));
+
 var app = builder.Build();
 
 app.MapGet("/", () => "Api running well");

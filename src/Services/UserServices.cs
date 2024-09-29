@@ -1,21 +1,18 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using AutoMapper;
 
 public class UserServices{
   private readonly AppDbContext _appDbContext;
-  public UserServices(AppDbContext appDbContext){
+  private readonly IMapper _mapper;
+
+  public UserServices(AppDbContext appDbContext, IMapper mapper){
     _appDbContext = appDbContext;
+    _mapper = mapper;
   }
 
   public async Task<User> CreateUserServiceAsync(CreateUserDto createUser){
 
-    var user = new User{
-      UserId = Guid.NewGuid(),
-      UserName = createUser.UserName,
-      Password = createUser.Password,
-      Email = createUser.Email,
-      Address = createUser.Address,
-      Age = createUser.Age,
-    };
+    var user = _mapper.Map<User>(createUser);
 
     await _appDbContext.Users.AddAsync(user);
     await _appDbContext.SaveChangesAsync();
