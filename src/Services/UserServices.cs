@@ -4,10 +4,22 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 
-public class UserServices{
+public  interface IUserServices{
+    public  Task<User> CreateUserServiceAsync(CreateUserDto createUser);
+    public  Task<List<UserDto>> GetUserAsync();
+    public  Task<UserDto> FindUserByIdServiceAsync(Guid Id);
+    public  Task<bool> DeleteUserByIdServiceAsync(Guid Id);
+    public  Task<UserDto> UpdateUserServiceAsync(Guid Id , UpdateUserDto updateUser);
+
+}
+
+
+public class UserServices : IUserServices{
 
    private readonly AppDbContext _appDbContext;
    private readonly IMapper _mapper;
+
+
 
       public UserServices(AppDbContext appDbContext , IMapper mapper){
           _mapper = mapper;
@@ -15,8 +27,6 @@ public class UserServices{
       }
 
   public async Task<User> CreateUserServiceAsync(CreateUserDto createUser){
-
-
 
       // Map Create User To user
         var user = _mapper.Map<User>(createUser);
@@ -33,14 +43,7 @@ public class UserServices{
 
     var users =  await _appDbContext.Users.ToListAsync();
 
-    var requiredUserData = users.Select(user => new UserDto{
-
-      UserId = user.UserId,
-      UserName = user.UserName,
-      Email = user.Email,
-      Address = user.Address,
-      Age = user.Age
-    }).ToList();
+    var requiredUserData = _mapper.Map<List<UserDto>>(users);
 
     return requiredUserData;
 

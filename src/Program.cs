@@ -7,7 +7,9 @@ builder.Services.AddControllers()
 {
     options.SuppressModelStateInvalidFilter = true; // Disable automatic model validation response
 });
-builder.Services.AddScoped<UserServices>();
+builder.Services.AddScoped<IUserServices, UserServices>();
+builder.Services.AddScoped<IRatingServices , RatingServices>();
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

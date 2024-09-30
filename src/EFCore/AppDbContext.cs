@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
 
   public DbSet<User> Users { get; set; }
   public DbSet<Product> Products { get; set; }
+  public DbSet<Rating> Ratings { get; set; }
 
 
   protected override void OnModelCreating(ModelBuilder modelBuilder){
@@ -40,5 +41,34 @@ public class AppDbContext : DbContext
       entity.Property(e => e.IsOnSale).HasDefaultValue(false);
       entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
     });
+
+
+    modelBuilder.Entity<Rating>(entity =>{
+
+
+
+
+      entity.HasKey(r => r.RatingId);
+      entity.Property(r => r.RatingId).HasDefaultValueSql("uuid_generate_v4()");
+      entity.Property(r => r.FeedBack).HasMaxLength(150);
+      entity.Property(r => r.RatingScore);
+      entity.Property(r => r.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+
+
+    });
+
+
+
+
+
+
   }
+
+
+
+
+
+
+
 }

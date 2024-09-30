@@ -7,17 +7,17 @@ using Microsoft.AspNetCore.Mvc;
 
 public class UserControllers: ControllerBase {
 
-  private readonly UserServices _userServices;
+    private readonly IUserServices _userServices;
 
 
-  public UserControllers( UserServices userServices){
+    public UserControllers(IUserServices userServices){
 
     _userServices = userServices;
   }
 
 
-  [HttpPost]
-  public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
+    [HttpPost]
+   public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
 
 
        if (!ModelState.IsValid)
@@ -42,8 +42,8 @@ public class UserControllers: ControllerBase {
 }
 
 
-  [HttpGet]
-  public async Task<IActionResult> GetUsers(){
+    [HttpGet]
+    public async Task<IActionResult> GetUsers(){
 
     var users =  await _userServices.GetUserAsync();
 
@@ -52,8 +52,8 @@ public class UserControllers: ControllerBase {
   }
 
 
-  [HttpGet("{Id}")]
-  public async Task<IActionResult> FindUserById(Guid Id){
+    [HttpGet("{Id}")]
+    public async Task<IActionResult> FindUserById(Guid Id){
 
     var user =   await _userServices.FindUserByIdServiceAsync(Id);
 
@@ -61,9 +61,7 @@ public class UserControllers: ControllerBase {
   }
 
 
-
     [HttpDelete("{Id}")]
-
     public async Task<IActionResult> DeleteUserById(Guid Id){
 
       var user = await _userServices.DeleteUserByIdServiceAsync(Id);

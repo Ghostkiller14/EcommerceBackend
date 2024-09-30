@@ -11,5 +11,16 @@ public class MappingProfile : Profile
         CreateMap<CreateProductDto, Product>();
         CreateMap<UpdateProductDto, Product>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+        CreateMap<Rating , RatingDto>();
+        CreateMap<CreateRatingDto , Rating>();
+        CreateMap<UpdateRatingDto , Rating>()
+        .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+
+
     }
 }
