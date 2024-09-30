@@ -3,3 +3,6 @@
 bin
 obj
 *.http
+appsettings.json
+appsettings.*.json
+Migrations/
