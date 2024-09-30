@@ -1,13 +1,11 @@
-
 using Microsoft.AspNetCore.Mvc;
-
-
 [ApiController]
 [Route("/api/v1/users")]
 
 public class UserControllers: ControllerBase {
 
     private readonly IUserServices _userServices;
+
 
 
     public UserControllers(IUserServices userServices){
@@ -19,24 +17,22 @@ public class UserControllers: ControllerBase {
     [HttpPost]
    public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
 
+    if (!ModelState.IsValid){
+      // Log the errors or handle them as needed
+      var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+      Console.WriteLine("Validation errors:");
 
-       if (!ModelState.IsValid)
-      {
-          // Log the errors or handle them as needed
-          var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-          Console.WriteLine("Validation errors:");
-          errors.ForEach(error => Console.WriteLine(error));
 
-          // Return a custom response with validation errors
-          return BadRequest(new { Message = "Validation failed", Errors = errors });
-      }
+      errors.ForEach(error => Console.WriteLine(error));
+
+      // Return a custom response with validation errors
+      return BadRequest(new { Message = "Validation failed", Errors = errors });
+    }
 
     var user =  await _userServices.CreateUserServiceAsync(createdUser);
 
 
     var response = new { Message = "User created successfully", User = user };
-
-
     return Created($"/api/users/{user.UserId}",response);
 
 }
