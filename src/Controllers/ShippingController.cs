@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 
-[ApiController, Route("/api/shipping")]
+[ApiController, Route("/api/v1/shipping")]
 public class ShippingController : ControllerBase
 {
   private readonly ShippingService _shippingService;
@@ -44,8 +44,9 @@ public class ShippingController : ControllerBase
   }
 
   [HttpDelete("{ShippingId:guid}")]
-  public async Task<IActionResult> DeleteShipping(Guid ShippingId){
-    bool isShippDeleted =await _shippingService.DeleteShippingByIdAsync(ShippingId);
+  public async Task<IActionResult> DeleteShipping(Guid ShippingId)
+  {
+    bool isShippDeleted = await _shippingService.DeleteShippingByIdAsync(ShippingId);
     return Ok(isShippDeleted);
   }
 }
