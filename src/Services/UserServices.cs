@@ -1,83 +1,122 @@
+
 using Microsoft.AspNetCore.Http.HttpResults;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+
 
 public class UserServices{
-  private readonly AppDbContext _appDbContext;
-  private readonly IMapper _mapper;
 
-  public UserServices(AppDbContext appDbContext, IMapper mapper){
-    _appDbContext = appDbContext;
-    _mapper = mapper;
-  }
+   private readonly AppDbContext _appDbContext;
+   private readonly IMapper _mapper;
+
+      public UserServices(AppDbContext appDbContext , IMapper mapper){
+          _mapper = mapper;
+          _appDbContext = appDbContext;
+      }
 
   public async Task<User> CreateUserServiceAsync(CreateUserDto createUser){
 
-    var user = _mapper.Map<User>(createUser);
 
-    await _appDbContext.Users.AddAsync(user);
-    await _appDbContext.SaveChangesAsync();
 
-    return user;
+      // Map Create User To user
+        var user = _mapper.Map<User>(createUser);
+
+        await _appDbContext.Users.AddAsync(user);
+        await _appDbContext.SaveChangesAsync();
+
+        return user;
+
   }
-//   public List<UserDto> GetUsersService(){
 
 
-//     var users = _user.Select(users => new UserDto{
+  public async Task<List<UserDto>> GetUserAsync(){
 
-//       UserId = users.UserId,
-//       UserName = users.UserName,
-//       Email = users.Email,
-//       Age = users.Age
+    var users =  await _appDbContext.Users.ToListAsync();
 
-//     }).ToList();
+    var requiredUserData = users.Select(user => new UserDto{
 
+      UserId = user.UserId,
+      UserName = user.UserName,
+      Email = user.Email,
+      Address = user.Address,
+      Age = user.Age
+    }).ToList();
 
-//     return users;
-
-//   }
-
-//   public UserDto GetUserByIdService(Guid Id){
-
-
-//     var userFound = _user.FirstOrDefault(user => user.Id == Id);
-//     if(userFound == null){
-//       return null;
-//     }
+    return requiredUserData;
 
 
-//     var user = new UserDto{
-//       Id = userFound.Id,
-//       Name = userFound.Name,
-//       UserName = userFound.UserName,
-//       Email = userFound.Email,
-//       Age = userFound.Age
-
-
-//     };
-
-
-//     return user;
+  }
 
 
 
+  public async Task<UserDto> FindUserByIdServiceAsync(Guid Id){
+
+    var findUser = await _appDbContext.Users.FindAsync(Id);
+
+    if(findUser == null){
+      return null;
+    }
+
+    //Map user to userDto
 
 
+      var userData = _mapper.Map<UserDto>(findUser);
+    // var userData = new UserDto{
+    //   UserId = findUser.UserId,
+    //   UserName = findUser.UserName,
+    //   Email = findUser.Email,
+    //   Age = findUser.Age,
+    //   Address = findUser.Address
+    // };
+
+    return userData;
 
 
+  }
 
 
-//   }
-//   public bool DeleteUserService(Guid Id){
+  public async Task<bool> DeleteUserByIdServiceAsync(Guid Id){
 
-//     var user = _user.FirstOrDefault(user => user.Id == Id);
+        var findUser = await _appDbContext.Users.FindAsync(Id);
 
-//     if(user == null){
-//       return false;
-//     }
 
-//     _user.Remove(user);
+        if(findUser == null){
+          return false;
 
-//     return true;
-//   }
+        }
 
-}
+        _appDbContext.Remove(findUser);
+        await _appDbContext.SaveChangesAsync();
+
+        return true;
+
+  }
+
+
+  public async Task<UserDto> UpdateUserServiceAsync(Guid Id , UpdateUserDto updateUser){
+
+       var findUser = await _appDbContext.Users.FindAsync(Id);
+
+       if(findUser == null){
+        return null;
+       }
+
+
+        findUser.UserName = updateUser.UserName ?? findUser.UserName;
+        findUser.Password = updateUser.Password ?? findUser.Password;
+        findUser.Email = updateUser.Email ?? findUser.Email;
+        findUser.Age = updateUser.Age  != 0 ? updateUser.Age : findUser.Age;
+
+         _appDbContext.Users.Update(findUser);
+
+         await _appDbContext.SaveChangesAsync();
+
+
+         var userData = _mapper.Map<UserDto>(findUser);
+
+         return userData;
+
+  }
+
+
+ }
