@@ -1,8 +1,5 @@
-.vscode
-.DS_Store
-bin
-obj
-*.http
+bin/
+obj/
 appsettings.json
 appsettings.*.json
 Migrations/

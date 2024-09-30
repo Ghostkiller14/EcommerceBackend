@@ -1,23 +1,26 @@
 using Microsoft.EntityFrameworkCore;
 
+
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddControllers().ConfigureApiBehaviorOptions(options => {
-    options.SuppressModelStateInvalidFilter = true;
+builder.Services.AddControllers()
+.ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressModelStateInvalidFilter = true; // Disable automatic model validation response
 });
+builder.Services.AddScoped<UserServices>();
 
-builder.Services.AddScoped<ShippingService>();
-
-// inside the Startup file / Program.cs
 builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
 
+app.MapGet("/", () => "Api running well");
 
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
 app.Run();
