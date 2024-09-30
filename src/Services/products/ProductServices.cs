@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 public class ProductServices
 {
@@ -11,6 +12,7 @@ public class ProductServices
 
     public async Task<Product> CreateProductServiceAsync(CreateProductDto createProduct)
     {
+        try{
 
         var product = _mapper.Map<Product>(createProduct);
 
@@ -18,7 +20,16 @@ public class ProductServices
         await _appDbContext.SaveChangesAsync();
 
         return product;
+        
+        }catch(DbUpdateException ex){
+            Console.WriteLine($"Database Update Err: {ex.Message}");
+            throw new ApplicationException("A DB Error Happened during the creation of the Product");
+        }catch(Exception ex){
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error occurred. Please try again later.");
+        }
     }
+
 
 
 
