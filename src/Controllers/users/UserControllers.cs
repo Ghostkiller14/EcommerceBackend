@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 [Route("/api/v1/users")]
 
-
 public class UserControllers: ControllerBase {
 
   private readonly UserServices _userServices;
@@ -34,6 +33,7 @@ public class UserControllers: ControllerBase {
 
     var user =  await _userServices.CreateUserServiceAsync(createdUser);
 
+
     var response = new { Message = "User created successfully", User = user };
 
 
@@ -42,45 +42,48 @@ public class UserControllers: ControllerBase {
 }
 
 
-  // [HttpGet]
-  // public IActionResult GetUsers(){
+  [HttpGet]
+  public async Task<IActionResult> GetUsers(){
 
-  //   var users = _userServices.
+    var users =  await _userServices.GetUserAsync();
 
-  //   if (users == null){
-  //     return NotFound("The List of users is Empty");
-  //   }
-
-  //   return Ok(users);
-  // }
+    var response = new { StatusCode = 200, Message = "Users are returned successfully", Users = users };
+    return Ok(response);
+  }
 
 
-  // [HttpGet("{Id}")]
-  // public IActionResult GetUserByID(Guid Id){
+  [HttpGet("{Id}")]
+  public async Task<IActionResult> FindUserById(Guid Id){
 
-  //   var user = _userServices.GetUserByIdService(Id);
+    var user =   await _userServices.FindUserByIdServiceAsync(Id);
 
-  //   if(user == null){
-
-  //     return NotFound($"The user with {Id} is not Exist ");
-  //   }
-  //   return Ok(user);
-  // }
-
-  // [HttpDelete("{Id}")]
-
-  // public IActionResult DeleteUserById(Guid Id){
-
-  //   var user = _userServices.DeleteUserService(Id);
-
-  //   if(!user){
-  //           return NotFound("Id you are tring to find is not Exist");
-  //   }
-
-  //   return Ok(user);
-  // }
+    return Ok(user);
+  }
 
 
 
+    [HttpDelete("{Id}")]
 
-}
+    public async Task<IActionResult> DeleteUserById(Guid Id){
+
+      var user = await _userServices.DeleteUserByIdServiceAsync(Id);
+
+      if(user == false){
+        return BadRequest("The Id you trying to find is Not Exist");
+      }
+
+      var response = new {message = "UserDeleted successfully" , User = user};
+
+      return Ok(response);
+
+    }
+
+    [HttpPut("{Id}")]
+    public async Task<IActionResult> UpdateUserById(Guid Id, UpdateUserDto updateUser){
+
+      var userData = await  _userServices.UpdateUserServiceAsync(Id,updateUser);
+
+      return Ok(userData);
+
+    }
+  }
