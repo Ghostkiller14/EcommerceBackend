@@ -30,6 +30,15 @@ public class AppDbContext : DbContext
       entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
     });
 
+    modelBuilder.Entity<Shipping>(entity => {
+      entity.HasKey(u => u.ShippingId);
+      entity.Property(u => u.ShippingId).HasDefaultValueSql("uuid_generate_v4()");
+      entity.Property(u => u.OrderId).IsRequired();
+      entity.Property(u => u.Status).IsRequired();
+      entity.HasIndex(u => u.TrackingNumber).IsUnique();
+      entity.Property(u=> u.ShippingDetails).HasMaxLength(255);
+     });
+     
     modelBuilder.Entity<Product>(entity => {
       entity.HasKey(e => e.ProductId);
       entity.Property(e => e.ProductId).HasDefaultValueSql("uuid_generate_v4()");
