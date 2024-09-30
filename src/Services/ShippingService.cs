@@ -20,7 +20,6 @@ public class ShippingService
       Status = newShippingDto.Status,
       TrackingNumber = newShippingDto.TrackingNumber,
       ShippingDetails = newShippingDto.ShippingDetails,
-
     };
 
     await _appDbContext.shippings.AddAsync(shipping);
@@ -30,7 +29,6 @@ public class ShippingService
   public async Task<List<Shipping>> GetShippingAsync()
   {
     var shipps = await _appDbContext.shippings.ToListAsync();
-
     return shipps;
   }
   public async Task<Shipping> UpdateShippingByIdAsync(Guid ShippingId, UpdateShippingDto ShippingData)
