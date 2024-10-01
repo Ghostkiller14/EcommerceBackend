@@ -35,26 +35,26 @@ public class UserControllers: ControllerBase {
     var response = new { Message = "User created successfully", User = user };
     return Created($"/api/users/{user.UserId}",response);
 
-}
+  }
 
 
     [HttpGet]
     public async Task<IActionResult> GetUsers(){
 
-    var users =  await _userServices.GetUserAsync();
+      var users =  await _userServices.GetUserAsync();
 
-    var response = new { StatusCode = 200, Message = "Users are returned successfully", Users = users };
-    return Ok(response);
-  }
+      var response = new { StatusCode = 200, Message = "Users are returned successfully", Users = users };
+      return Ok(response);
+    }
 
 
     [HttpGet("{Id}")]
     public async Task<IActionResult> FindUserById(Guid Id){
 
-    var user =   await _userServices.FindUserByIdServiceAsync(Id);
+      var user =   await _userServices.FindUserByIdServiceAsync(Id);
 
-    return Ok(user);
-  }
+      return Ok(user);
+    }
 
 
     [HttpDelete("{Id}")]
