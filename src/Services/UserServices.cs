@@ -1,16 +1,13 @@
-
-using Microsoft.AspNetCore.Http.HttpResults;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 
 public  interface IUserServices{
-    public  Task<User> CreateUserServiceAsync(CreateUserDto createUser);
-    public  Task<List<UserDto>> GetUserAsync();
-    public  Task<UserDto> FindUserByIdServiceAsync(Guid Id);
-    public  Task<bool> DeleteUserByIdServiceAsync(Guid Id);
-    public  Task<UserDto> UpdateUserServiceAsync(Guid Id , UpdateUserDto updateUser);
-
+  public  Task<User> CreateUserServiceAsync(CreateUserDto createUser);
+  public  Task<List<UserDto>> GetUserAsync();
+  public  Task<UserDto> FindUserByIdServiceAsync(Guid Id);
+  public  Task<bool> DeleteUserByIdServiceAsync(Guid Id);
+  public  Task<UserDto> UpdateUserServiceAsync(Guid Id , UpdateUserDto updateUser);
 }
 
 
@@ -28,13 +25,13 @@ public class UserServices : IUserServices{
 
   public async Task<User> CreateUserServiceAsync(CreateUserDto createUser){
 
-      // Map Create User To user
-        var user = _mapper.Map<User>(createUser);
+    // Map Create User To user
+    var user = _mapper.Map<User>(createUser);
 
-        await _appDbContext.Users.AddAsync(user);
-        await _appDbContext.SaveChangesAsync();
+    await _appDbContext.Users.AddAsync(user);
+    await _appDbContext.SaveChangesAsync();
 
-        return user;
+    return user;
 
   }
 
@@ -61,16 +58,7 @@ public class UserServices : IUserServices{
     }
 
     //Map user to userDto
-
-
-      var userData = _mapper.Map<UserDto>(findUser);
-    // var userData = new UserDto{
-    //   UserId = findUser.UserId,
-    //   UserName = findUser.UserName,
-    //   Email = findUser.Email,
-    //   Age = findUser.Age,
-    //   Address = findUser.Address
-    // };
+    var userData = _mapper.Map<UserDto>(findUser);
 
     return userData;
 
@@ -97,29 +85,21 @@ public class UserServices : IUserServices{
 
 
   public async Task<UserDto> UpdateUserServiceAsync(Guid Id , UpdateUserDto updateUser){
+    var findUser = await _appDbContext.Users.FindAsync(Id);
 
-       var findUser = await _appDbContext.Users.FindAsync(Id);
+    if (findUser == null){
+      return null;
+    }
 
-       if(findUser == null){
-        return null;
-       }
+    // Map the updateUser values to the found user entity
+    _mapper.Map(updateUser, findUser);
 
+    // Update the entity in the database
+    _appDbContext.Users.Update(findUser);
+    await _appDbContext.SaveChangesAsync();
 
-        findUser.UserName = updateUser.UserName ?? findUser.UserName;
-        findUser.Password = updateUser.Password ?? findUser.Password;
-        findUser.Email = updateUser.Email ?? findUser.Email;
-        findUser.Age = updateUser.Age  != 0 ? updateUser.Age : findUser.Age;
-
-         _appDbContext.Users.Update(findUser);
-
-         await _appDbContext.SaveChangesAsync();
-
-
-         var userData = _mapper.Map<UserDto>(findUser);
-
-         return userData;
-
+    // Map the updated entity to UserDto
+    var userData = _mapper.Map<UserDto>(findUser);
+    return userData;
   }
-
-
  }
