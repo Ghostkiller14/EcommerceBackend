@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-public class AppDbContext : DbContext
-{
+public class AppDbContext : DbContext{
   public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
 
@@ -12,7 +7,7 @@ public class AppDbContext : DbContext
   public DbSet<User> Users { get; set; }
   public DbSet<Product> Products { get; set; }
   public DbSet<Rating> Ratings { get; set; }
-
+  public DbSet<Category> Categories { get; set; }
   public DbSet<Order> Orders { get; set; }
 
 
@@ -32,18 +27,11 @@ public class AppDbContext : DbContext
       entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
     });
 
-     modelBuilder.Entity<Order>(entity => {
+    modelBuilder.Entity<Order>(entity => {
       entity.HasKey(o =>o.OrderId );
       entity.Property(o =>o.OrderId).HasDefaultValueSql("uuid_generate_v4()");
       entity.Property(o => o.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
     });
-
-    modelBuilder.Entity<User>()
-    .HasMany(o => o.orders)
-    .WithOne(u =>u.User)
-    .HasForeignKey(u => u.UserId);
-
-
 
     modelBuilder.Entity<Shipping>(entity => {
       entity.HasKey(u => u.ShippingId);
@@ -53,7 +41,7 @@ public class AppDbContext : DbContext
       entity.HasIndex(u => u.TrackingNumber).IsUnique();
       entity.Property(u=> u.ShippingDetails).HasMaxLength(255);
      });
-
+     
     modelBuilder.Entity<Product>(entity => {
       entity.HasKey(e => e.ProductId);
       entity.Property(e => e.ProductId).HasDefaultValueSql("uuid_generate_v4()");
@@ -67,33 +55,21 @@ public class AppDbContext : DbContext
       entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
     });
 
+    modelBuilder.Entity<Category>(entity => {
+      entity.HasKey(category => category.CategoryId);
+      entity.Property(category => category.CategoryId).HasDefaultValueSql("uuid_generate_v4()"); 
+      entity.Property(category => category.Name).IsRequired().HasMaxLength(100);
+      entity.HasIndex(category => category.Name).IsUnique();
+      entity.Property(category => category.Slug).IsRequired().HasMaxLength(100);
+      entity.Property(category => category.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+    });
 
     modelBuilder.Entity<Rating>(entity =>{
-
-
-
-
       entity.HasKey(r => r.RatingId);
       entity.Property(r => r.RatingId).HasDefaultValueSql("uuid_generate_v4()");
       entity.Property(r => r.FeedBack).HasMaxLength(150);
       entity.Property(r => r.RatingScore);
       entity.Property(r => r.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-
-
     });
-
-
-
-
-
-
   }
-
-
-
-
-
-
-
 }

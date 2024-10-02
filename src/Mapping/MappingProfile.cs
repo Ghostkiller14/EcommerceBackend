@@ -16,21 +16,13 @@ public class MappingProfile : Profile{
         CreateMap<CreateRatingDto , Rating>();
         CreateMap<UpdateRatingDto , Rating>()
         .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-
-
-
+        
         CreateMap<Order , OrderDto>();
         CreateMap<CreateOrderDto , Order>();
         CreateMap<UpdateOrderDto , Order>()
         .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-
-
-
-
-
-
-
+        CreateMap<CreateCategoryDto, Category>();
+        CreateMap<Category, CategoryDto>();
     }
 }

@@ -1,5 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 
+//TO DO
+// create seeding data 
+// linq query : join , left join 
+// groupBy() as a filter for products or anything else
+// Google Authentication
+// inside user entity: isGoogleLogin true or false 
+//TO DO 
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
