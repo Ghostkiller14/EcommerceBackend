@@ -10,6 +10,12 @@ builder.Services.AddControllers()
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddScoped<IRatingServices , RatingServices>();
 
+builder.Services.AddScoped<ProductServices>();
+
+builder.Services.AddScoped<OrderServices>();
+
+
+builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

@@ -13,6 +13,8 @@ public class AppDbContext : DbContext
   public DbSet<Product> Products { get; set; }
   public DbSet<Rating> Ratings { get; set; }
 
+  public DbSet<Order> Orders { get; set; }
+
 
   protected override void OnModelCreating(ModelBuilder modelBuilder){
 
@@ -30,6 +32,19 @@ public class AppDbContext : DbContext
       entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
     });
 
+     modelBuilder.Entity<Order>(entity => {
+      entity.HasKey(o =>o.OrderId );
+      entity.Property(o =>o.OrderId).HasDefaultValueSql("uuid_generate_v4()");
+      entity.Property(o => o.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+    });
+
+    modelBuilder.Entity<User>()
+    .HasMany(o => o.orders)
+    .WithOne(u =>u.User)
+    .HasForeignKey(u => u.UserId);
+
+
+
     modelBuilder.Entity<Shipping>(entity => {
       entity.HasKey(u => u.ShippingId);
       entity.Property(u => u.ShippingId).HasDefaultValueSql("uuid_generate_v4()");
@@ -38,7 +53,7 @@ public class AppDbContext : DbContext
       entity.HasIndex(u => u.TrackingNumber).IsUnique();
       entity.Property(u=> u.ShippingDetails).HasMaxLength(255);
      });
-     
+
     modelBuilder.Entity<Product>(entity => {
       entity.HasKey(e => e.ProductId);
       entity.Property(e => e.ProductId).HasDefaultValueSql("uuid_generate_v4()");

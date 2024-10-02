@@ -2,4 +2,9 @@ bin/
 obj/
 appsettings.json
 appsettings.*.json
-Migrations/
+appsettings.json
+
+
+
+
+
