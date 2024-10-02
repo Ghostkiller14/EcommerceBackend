@@ -71,5 +71,11 @@ public class AppDbContext : DbContext{
       entity.Property(r => r.RatingScore);
       entity.Property(r => r.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
     });
+    
+    modelBuilder.Entity<Category>()
+      .HasMany(c => c.Products)
+      .WithOne(p => p.Category)
+      .HasForeignKey(p => p.CategoryId)
+      .OnDelete(DeleteBehavior.Cascade);
   }
 }
