@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 public class ApiResponse{
 
-
-
   private static IActionResult CreateApiResponse<T>(T? data, string message, int statusCode, bool success){
     var response = new ApiResponseTemplate<T>(success, data, message, statusCode);
 
@@ -12,7 +10,6 @@ public class ApiResponse{
         StatusCode = statusCode
       };
   }
-
 
     public static IActionResult Success<T>(T data, string message = "Success")
     {
@@ -53,9 +50,6 @@ public class ApiResponse{
     {
       return CreateApiResponse<object>(null, message, StatusCodes.Status500InternalServerError, false);
     }
-
-
-
 
 }
 

@@ -6,13 +6,10 @@ public class UserControllers: ControllerBase {
 
     private readonly IUserServices _userServices;
 
-
-
     public UserControllers(IUserServices userServices){
 
     _userServices = userServices;
   }
-
 
     [HttpPost]
    public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
@@ -36,6 +33,7 @@ public class UserControllers: ControllerBase {
     return Created($"/api/users/{user.UserId}",response);
 
   }
+
 
 
     [HttpGet]
