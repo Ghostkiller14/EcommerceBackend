@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-
 
 [ApiController, Route("/api/v1/shipping")]
 public class ShippingController : ControllerBase
@@ -11,44 +9,87 @@ public class ShippingController : ControllerBase
     _shippingService = shippingService;
   }
 
-
-  // GET => /api/users => Get all the users
   [HttpGet]
-  public async Task<IActionResult> Getshippment()
+  public async Task<IActionResult> GetShippment()
   {
-
-    var getshipping = await _shippingService.GetShippingAsync();
-    return Ok(getshipping);
+    try{
+      var getShipping = await _shippingService.GetShippingAsync();
+      return ApiResponse.Success(getShipping, "Shipping data Retrived");
+    }
+    catch (ApplicationException dbEx){
+      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+      throw new ApplicationException("An error has occurred while saving the data to the database");
+    }
+    catch (Exception ex){
+      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+      throw new ApplicationException("An unexpected error has occurred");
+    }
   }
 
-  [HttpGet("{ShippingId:guid}")]
-  public async Task<IActionResult> GetShipping(Guid ShippingId)
+  [HttpGet("{shippingId:guid}")]
+  public async Task<IActionResult> GetShipping(Guid shippingId)
   {
-    var getSingelShipping = await _shippingService.GetShippingByIdAsync(ShippingId);
-    return Ok(getSingelShipping);
+    try{
+      var getSingleShipping = await _shippingService.GetShippingByIdAsync(shippingId);
+      return ApiResponse.Success(getSingleShipping, "Shippment Details returned Successfully!");
+    }
+    catch (ApplicationException dbEx){
+      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+      throw new ApplicationException("An error has occurred while saving the data to the database");
+    }
+    catch (Exception ex){
+      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+      throw new ApplicationException("An unexpected error has occurred");
+    }
   }
   [HttpPost]
-
   public async Task<IActionResult> CreateShipping([FromBody] CreateShippingDto newShipping)
   {
-    var shipping = await _shippingService.CreateShippingAsync(newShipping);
-    var response = new { Message = "An order will Shipp successfully", Shipping = shipping };
-    return Created($"/api/shipping/{shipping.ShippingId}", response);
+    try{
+      var shipping = await _shippingService.CreateShippingAsync(newShipping);
+      return ApiResponse.Created(shipping, "Shipping Created Successfully!");
+    }
+    catch (ApplicationException dbEx){
+      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+      throw new ApplicationException("An error has occurred while saving the data to the database");
+    }
+    catch (Exception ex){
+      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+      throw new ApplicationException("An unexpected error has occurred");
+    }
   }
 
-  [HttpPut("{ShippingId:guid}")]
-  public async Task<IActionResult> UpdateShippingByIdAsync(Guid ShippingId, [FromBody] UpdateShippingDto ShippingData)
+  [HttpPut("{shippingId:guid}")]
+  public async Task<IActionResult> UpdateShippingByIdAsync(Guid shippingId, [FromBody] UpdateShippingDto ShippingData)
   {
-    var updatedshipping = await _shippingService.UpdateShippingByIdAsync(ShippingId, ShippingData);
-    return Ok(updatedshipping);
+    try{
+      var updatedshipping = await _shippingService.UpdateShippingByIdAsync(shippingId, ShippingData);
+      return ApiResponse.Success(updatedshipping, "Shipping Updated Successfully!");
+    }
+    catch (ApplicationException dbEx){
+      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+      throw new ApplicationException("An error has occurred while saving the data to the database");
+    }
+    catch (Exception ex){
+      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+      throw new ApplicationException("An unexpected error has occurred");
+    }
   }
 
-  [HttpDelete("{ShippingId:guid}")]
-  public async Task<IActionResult> DeleteShipping(Guid ShippingId)
+  [HttpDelete("{shippingId:guid}")]
+  public async Task<IActionResult> DeleteShipping(Guid shippingId)
   {
-    bool isShippDeleted = await _shippingService.DeleteShippingByIdAsync(ShippingId);
-    return Ok(isShippDeleted);
+  try{
+      bool isShippDeleted = await _shippingService.DeleteShippingByIdAsync(shippingId);
+      return ApiResponse.Success(isShippDeleted, "Shipping Deleted Successfully!");
+    }
+    catch (ApplicationException dbEx){
+      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+      throw new ApplicationException("An error has occurred while saving the data to the database");
+    }
+    catch (Exception ex){
+      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+      throw new ApplicationException("An unexpected error has occurred");
+    }
   }
 }
-
-

@@ -34,51 +34,89 @@ public class ProductServices: IProductServices{
     }
 
     public async Task<List<ProductDto>> GetProductAsync(){
-        var products =  await _appDbContext.Products.ToListAsync();
-        var requiredProductData = _mapper.Map<List<ProductDto>>(products);
+        try{
+            var products =  await _appDbContext.Products.ToListAsync();
+            var productData = _mapper.Map<List<ProductDto>>(products);
 
-        return requiredProductData;
+            return productData;
+        }
+        catch (DbUpdateException dbEx){
+            Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+            throw new ApplicationException("An error has occurred while saving the data to the database");
+        }
+        catch (Exception ex){
+            Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error has occurred");
+        }
     }
 
     public async Task<ProductDto> FindProductByIdServiceAsync(Guid Id){
-        var findProduct = await _appDbContext.Products.FindAsync(Id);
+        try{
+            var findProduct = await _appDbContext.Products.FindAsync(Id);
 
-        if(findProduct == null){
-          return null;
+            if(findProduct == null){
+                return null;
+            }
+
+            var product = _mapper.Map<ProductDto>(findProduct);
+            return product;
         }
-
-        var product = _mapper.Map<ProductDto>(findProduct);
-        return product;
+        catch (DbUpdateException dbEx){
+            Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+            throw new ApplicationException("An error has occurred while saving the data to the database");
+        }
+        catch (Exception ex){
+            Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error has occurred");
+        }
     }
 
     public async Task<bool> DeleteProductByIdServiceAsync(Guid Id){
-        var findProduct = await _appDbContext.Products.FindAsync(Id);
+        try{
+            var findProduct = await _appDbContext.Products.FindAsync(Id);
 
-        if(findProduct == null){
-          return false;
+            if(findProduct == null){
+                return false;
+            }
+
+            _appDbContext.Remove(findProduct);
+            await _appDbContext.SaveChangesAsync();
+
+            return true;
         }
-
-        _appDbContext.Remove(findProduct);
-        await _appDbContext.SaveChangesAsync();
-
-        return true;
+        catch (DbUpdateException dbEx){
+            Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+            throw new ApplicationException("An error has occurred while saving the data to the database");
+        }
+        catch (Exception ex){
+            Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error has occurred");
+        }
     }
 
     public async Task<ProductDto> UpdateProductServiceAsync(Guid Id , UpdateProductDto updateProduct){
+        try{
+            var findProduct = await _appDbContext.Products.FindAsync(Id);
 
-       var findProduct = await _appDbContext.Products.FindAsync(Id);
+            if(findProduct == null){
+                return null;
+            }
 
-       if(findProduct == null){
-        return null;
-       }
+            _mapper.Map(updateProduct, findProduct);
+            _appDbContext.Products.Update(findProduct);
+            await _appDbContext.SaveChangesAsync();
+            
+            var productData = _mapper.Map<ProductDto>(findProduct);
 
-        _mapper.Map(updateProduct, findProduct);
-        _appDbContext.Products.Update(findProduct);
-        await _appDbContext.SaveChangesAsync();
-        
-        var productData = _mapper.Map<ProductDto>(findProduct);
-
-        return productData;
+            return productData;
+        }
+        catch (DbUpdateException dbEx){
+            Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+            throw new ApplicationException("An error has occurred while saving the data to the database");
+        }
+        catch (Exception ex){
+            Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error has occurred");
+        }
     }
-
 }

@@ -1,6 +1,5 @@
-public class Shipping
+public class ShippingDto
 {
-  public Guid ShippingId { get; set; }
   public Guid OrderId { get; set; }
   public Status Status {get; set;}
   public int TrackingNumber { get; set; }

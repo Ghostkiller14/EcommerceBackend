@@ -1,107 +1,154 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
-
-public  interface IUserServices{
-  public  Task<User> CreateUserServiceAsync(CreateUserDto createUser);
-  public  Task<List<UserDto>> GetUserAsync();
-  public  Task<UserDto> FindUserByIdServiceAsync(Guid Id);
-  public  Task<bool> DeleteUserByIdServiceAsync(Guid Id);
-  public  Task<UserDto> UpdateUserServiceAsync(Guid Id , UpdateUserDto updateUser);
+public interface IUserServices
+{
+  public Task<User> CreateUserServiceAsync(CreateUserDto createUser);
+  public Task<List<UserDto>> GetUserAsync();
+  public Task<UserDto> FindUserByIdServiceAsync(Guid Id);
+  public Task<bool> DeleteUserByIdServiceAsync(Guid Id);
+  public Task<UserDto> UpdateUserServiceAsync(Guid Id, UpdateUserDto updateUser);
 }
 
+public class UserServices : IUserServices
+{
+  private readonly AppDbContext _appDbContext;
+  private readonly IMapper _mapper;
 
-public class UserServices : IUserServices{
+  public UserServices(AppDbContext appDbContext, IMapper mapper)
+  {
+    _mapper = mapper;
+    _appDbContext = appDbContext;
+  }
 
-   private readonly AppDbContext _appDbContext;
-   private readonly IMapper _mapper;
+  public async Task<User> CreateUserServiceAsync(CreateUserDto createUser)
+  {
+    try
+    {
+      var user = _mapper.Map<User>(createUser);
 
+      await _appDbContext.Users.AddAsync(user);
+      await _appDbContext.SaveChangesAsync();
 
+      return user;
+    }
+    catch (DbUpdateException dbEx)
+    {
+      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+      throw new ApplicationException("An error has occurred while saving the data to the database");
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+      throw new ApplicationException("An unexpected error has occurred");
+    }
+  }
 
-      public UserServices(AppDbContext appDbContext , IMapper mapper){
-          _mapper = mapper;
-          _appDbContext = appDbContext;
+  public async Task<List<UserDto>> GetUserAsync()
+  {
+    try
+    {
+      var users = await _appDbContext.Users.ToListAsync();
+      var requiredUserData = _mapper.Map<List<UserDto>>(users);
+
+      return requiredUserData;
+    }
+    catch (DbUpdateException dbEx)
+    {
+      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+      throw new ApplicationException("An error has occurred while saving the data to the database");
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+      throw new ApplicationException("An unexpected error has occurred");
+    }
+  }
+  
+  public async Task<UserDto> FindUserByIdServiceAsync(Guid Id)
+  {
+    try
+    {
+      var findUser = await _appDbContext.Users.FindAsync(Id);
+
+      if (findUser == null)
+      {
+        return null;
       }
 
-  public async Task<User> CreateUserServiceAsync(CreateUserDto createUser){
+      var userData = _mapper.Map<UserDto>(findUser);
 
-    // Map Create User To user
-    var user = _mapper.Map<User>(createUser);
-
-    await _appDbContext.Users.AddAsync(user);
-    await _appDbContext.SaveChangesAsync();
-
-    return user;
-
-  }
-
-
-  public async Task<List<UserDto>> GetUserAsync(){
-
-    var users =  await _appDbContext.Users.ToListAsync();
-
-    var requiredUserData = _mapper.Map<List<UserDto>>(users);
-
-    return requiredUserData;
-
-
-  }
-
-
-
-  public async Task<UserDto> FindUserByIdServiceAsync(Guid Id){
-
-    var findUser = await _appDbContext.Users.FindAsync(Id);
-
-    if(findUser == null){
-      return null;
+      return userData;
     }
-
-    //Map user to userDto
-    var userData = _mapper.Map<UserDto>(findUser);
-
-    return userData;
-
-
-  }
-
-
-  public async Task<bool> DeleteUserByIdServiceAsync(Guid Id){
-
-        var findUser = await _appDbContext.Users.FindAsync(Id);
-
-
-        if(findUser == null){
-          return false;
-
-        }
-
-        _appDbContext.Remove(findUser);
-        await _appDbContext.SaveChangesAsync();
-
-        return true;
-
-  }
-
-
-  public async Task<UserDto> UpdateUserServiceAsync(Guid Id , UpdateUserDto updateUser){
-    var findUser = await _appDbContext.Users.FindAsync(Id);
-
-    if (findUser == null){
-      return null;
+    catch (DbUpdateException dbEx)
+    {
+      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+      throw new ApplicationException("An error has occurred while saving the data to the database");
     }
-
-    // Map the updateUser values to the found user entity
-    _mapper.Map(updateUser, findUser);
-
-    // Update the entity in the database
-    _appDbContext.Users.Update(findUser);
-    await _appDbContext.SaveChangesAsync();
-
-    // Map the updated entity to UserDto
-    var userData = _mapper.Map<UserDto>(findUser);
-    return userData;
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+      throw new ApplicationException("An unexpected error has occurred");
+    }
   }
 
+  public async Task<bool> DeleteUserByIdServiceAsync(Guid Id)
+  {
+    try
+    {
+      var findUser = await _appDbContext.Users.FindAsync(Id);
 
- }
+      if (findUser == null)
+      {
+        return false;
+
+      }
+
+      _appDbContext.Remove(findUser);
+      await _appDbContext.SaveChangesAsync();
+
+      return true;
+    }
+    catch (DbUpdateException dbEx)
+    {
+      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+      throw new ApplicationException("An error has occurred while saving the data to the database");
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+      throw new ApplicationException("An unexpected error has occurred");
+    }
+  }
+
+  public async Task<UserDto> UpdateUserServiceAsync(Guid Id, UpdateUserDto updateUser)
+  {
+    try
+    {
+      var findUser = await _appDbContext.Users.FindAsync(Id);
+
+      if (findUser == null)
+      {
+        return null;
+      }
+      
+      _mapper.Map(updateUser, findUser);
+
+      _appDbContext.Users.Update(findUser);
+      await _appDbContext.SaveChangesAsync();
+
+      var userData = _mapper.Map<UserDto>(findUser);
+      return userData;
+    }
+    catch (DbUpdateException dbEx)
+    {
+      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+      throw new ApplicationException("An error has occurred while saving the data to the database");
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+      throw new ApplicationException("An unexpected error has occurred");
+    }
+  }
+}

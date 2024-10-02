@@ -3,79 +3,77 @@ using Microsoft.AspNetCore.Mvc;
 [Route("/api/v1/users")]
 
 public class UserControllers: ControllerBase {
+  private readonly IUserServices _userServices;
 
-    private readonly IUserServices _userServices;
-
-    public UserControllers(IUserServices userServices){
-
+  public UserControllers(IUserServices userServices){
     _userServices = userServices;
   }
 
-    [HttpPost]
-   public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
-
+  [HttpPost]
+  public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
     if (!ModelState.IsValid){
-      // Log the errors or handle them as needed
-      var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-      Console.WriteLine("Validation errors:");
-
-
-      errors.ForEach(error => Console.WriteLine(error));
-
-      // Return a custom response with validation errors
-      return BadRequest(new { Message = "Validation failed", Errors = errors });
+      return ApiResponse.BadRequest("Invalid User Data");
     }
+    try{
+      var user =  await _userServices.CreateUserServiceAsync(createdUser);
 
-    var user =  await _userServices.CreateUserServiceAsync(createdUser);
-
-
-    var response = new { Message = "User created successfully", User = user };
-    return Created($"/api/users/{user.UserId}",response);
-
+      return ApiResponse.Created(user, "User Created Successfully!");
+    }catch(ApplicationException ex){
+      return ApiResponse.ServerError("Server error: " + ex.Message);
+    }catch(Exception ex){
+      return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+    }
   }
 
-
-
-    [HttpGet]
-    public async Task<IActionResult> GetUsers(){
-
+  [HttpGet]
+  public async Task<IActionResult> GetUsers(){
+    try{
       var users =  await _userServices.GetUserAsync();
 
-      var response = new { StatusCode = 200, Message = "Users are returned successfully", Users = users };
-      return Ok(response);
-    }
-
-
-    [HttpGet("{Id}")]
-    public async Task<IActionResult> FindUserById(Guid Id){
-
-      var user =   await _userServices.FindUserByIdServiceAsync(Id);
-
-      return Ok(user);
-    }
-
-
-    [HttpDelete("{Id}")]
-    public async Task<IActionResult> DeleteUserById(Guid Id){
-
-      var user = await _userServices.DeleteUserByIdServiceAsync(Id);
-
-      if(user == false){
-        return BadRequest("The Id you trying to find is Not Exist");
-      }
-
-      var response = new {message = "UserDeleted successfully" , User = user};
-
-      return Ok(response);
-
-    }
-
-    [HttpPut("{Id}")]
-    public async Task<IActionResult> UpdateUserById(Guid Id, UpdateUserDto updateUser){
-
-      var userData = await  _userServices.UpdateUserServiceAsync(Id,updateUser);
-
-      return Ok(userData);
-
+      return ApiResponse.Success(users, "Users are returned Successfully");
+    }catch(Exception ex){
+      return ApiResponse.ServerError("Server Error: " + ex.Message);
     }
   }
+
+  [HttpGet("{id}")]
+  public async Task<IActionResult> FindUserById(Guid id){
+    try{
+      var user = await _userServices.FindUserByIdServiceAsync(id);
+      if (user == null){
+        return ApiResponse.NotFound($"User with this id {id} does not exist");
+      }
+      return ApiResponse.Success(user, "User is returned succesfully");
+    }catch(Exception ex){
+      return ApiResponse.ServerError("Server Error: " + ex.Message);
+    }
+  }
+
+  [HttpDelete("{id}")]
+  public async Task<IActionResult> DeleteUserById(Guid id){
+    try{
+      var user = await _userServices.DeleteUserByIdServiceAsync(id);
+
+      if (user == false){
+        return ApiResponse.NotFound("the User with the Id you've given dosen't exist");
+      }
+      return ApiResponse.Success(user, "User has been deleted successfully");
+    }catch(Exception ex){
+      return ApiResponse.BadRequest("Server Error: " + ex.Message);
+    }
+  }
+
+  [HttpPut("{id}")]
+  public async Task<IActionResult> UpdateUserById(Guid id, UpdateUserDto updateUser){
+    if (!ModelState.IsValid){
+      return ApiResponse.BadRequest("Invalid Update Data");
+    }
+    
+    try{
+      var userData = await _userServices.UpdateUserServiceAsync(id, updateUser);
+      return ApiResponse.Success(userData, "User has been Updated!");
+    }catch(Exception ex){
+      return ApiResponse.BadRequest("Server Error: " + ex.Message);
+    }
+  }
+}

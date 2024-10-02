@@ -1,87 +1,94 @@
-
 using Microsoft.AspNetCore.Mvc;
-
-
 [ApiController]
 [Route("/api/v1/Ratings")]
 
 public class RatingControllers: ControllerBase {
+  private readonly IRatingServices _rateServices;
 
-    private readonly IRatingServices _rateServices;
-
-
-    public RatingControllers( IRatingServices rateServices){
-
+  public RatingControllers( IRatingServices rateServices){
     _rateServices = rateServices;
   }
 
+  [HttpPost]
+  public async Task<IActionResult> CreateRating([FromBody]CreateRatingDto createdRate){
+    if (!ModelState.IsValid){
+      return ApiResponse.BadRequest("Invalid Rating Data");
+    }
+    try{
+      var rate =  await _rateServices.CreateRatingServiceAsync(createdRate);
 
-    [HttpPost]
-   public async Task<IActionResult> CreateRating([FromBody]CreateRatingDto createdRate){
-
-
-       if (!ModelState.IsValid)
-      {
-          // Log the errors or handle them as needed
-          var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-          Console.WriteLine("Validation errors:");
-          errors.ForEach(error => Console.WriteLine(error));
-
-          // Return a custom response with validation errors
-          return BadRequest(new { Message = "Validation failed", Errors = errors });
-      }
-
-    var rate =  await _rateServices.CreateRatingServiceAsync(createdRate);
-
-
-    var response = new { Message = "User created successfully", Rating = rate };
-
-
-    return Created($"/api/users/{rate.RatingId}",response);
-
+      return ApiResponse.Created(rate, "Rate Created Successfully!");
+    }catch(ApplicationException ex){
+      return ApiResponse.ServerError("Server error: " + ex.Message);
+    }catch(Exception ex){
+      return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+    }
 }
 
 
-    [HttpGet]
-    public async Task<IActionResult> GetUsers(){
+  [HttpGet]
+  public async Task<IActionResult> GetRatings(){
+    try{
+      var rate =  await _rateServices.GetRatingAsync();
 
-    var rate =  await _rateServices.GetRatingAsync();
-
-    var response = new { StatusCode = 200, Message = "Users are returned successfully", Ratings = rate };
-    return Ok(response);
+      return ApiResponse.Success(rate, "Ratings returned Successfully");
+    }catch(ApplicationException ex){
+      return ApiResponse.ServerError("Server error: " + ex.Message);
+    }catch(Exception ex){
+      return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+    }
   }
 
 
-    [HttpGet("{Id}")]
-    public async Task<IActionResult> FindatingById(Guid Id){
+  [HttpGet("{Id}")]
+  public async Task<IActionResult> FindRatingById(Guid Id){
+    try{
+      var rate = await _rateServices.FindRatingByIdServiceAsync(Id);
 
-    var rate =   await _rateServices.FindRatingByIdServiceAsync(Id);
-
-    return Ok(rate);
-  }
-
-
-    [HttpDelete("{Id}")]
-    public async Task<IActionResult> DeleteRatingById(Guid Id){
-
-      var rate = await _rateServices.DeleteRatoingByIdServiceAsync(Id);
-
-      if(rate == false){
-        return BadRequest("The Id you trying to find is Not Exist");
+      if (rate == null){
+        return ApiResponse.NotFound("Rating id doesn't exist");
       }
 
-      var response = new {message = "UserDeleted successfully" , Rate = rate};
-
-      return Ok(response);
-
-    }
-
-    [HttpPut("{Id}")]
-    public async Task<IActionResult> UpdateRatingById(Guid Id, UpdateRatingDto updateRating){
-
-      var userData = await  _rateServices.UpdateRatingServiceAsync(Id,updateRating);
-
-      return Ok(userData);
-
+      return ApiResponse.Success(rate, "Rate returned Successfully!");
+    }catch(ApplicationException ex){
+      return ApiResponse.ServerError("Server error: " + ex.Message);
+    }catch(Exception ex){
+      return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
     }
   }
+
+
+  [HttpDelete("{id}")]
+  public async Task<IActionResult> DeleteRatingById(Guid id){
+    try{
+      var rate = await _rateServices.DeleteRatingByIdServiceAsync(id);
+
+      if (rate == false)
+      {
+        return ApiResponse.NotFound("Can't find Rating from ID to delete.");
+      }
+
+      return ApiResponse.Success(rate, "Successfully Deleted the rating");
+    }catch(ApplicationException ex){
+      return ApiResponse.ServerError("Server error: " + ex.Message);
+    }catch(Exception ex){
+      return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+    }
+  }
+
+  [HttpPut("{id}")]
+  public async Task<IActionResult> UpdateRatingById(Guid id, UpdateRatingDto updateRating){
+    try{
+      var ratingData = await  _rateServices.UpdateRatingServiceAsync(id,updateRating);
+      
+      if (ratingData == null){
+        return ApiResponse.NotFound("Rating Data wasn't found by the ID provided.");
+      }
+      return ApiResponse.Success(ratingData, "Rating updated Successfully!");
+    }catch(ApplicationException ex){
+      return ApiResponse.ServerError("Server error: " + ex.Message);
+    }catch(Exception ex){
+      return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+    }
+  }
+}

@@ -54,15 +54,22 @@ public class CategoryService{
     }
 
     public async Task<bool> DeleteCategoryByIdServiceAsync(Guid Id){
-        var findCategory = await _appDbContext.Categories.FindAsync(Id);
+        try
+        {
+            var findCategory = await _appDbContext.Categories.FindAsync(Id);
 
-        if(findCategory == null){
-          return false;
+            if (findCategory == null){return false;}
+
+            _appDbContext.Remove(findCategory);
+            await _appDbContext.SaveChangesAsync();
+
+            return true;
+        }catch (DbUpdateException dbEx){
+            Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+            throw new ApplicationException("An error has occurred while saving the data to the database");
+        }catch (Exception ex){
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error occurred. Please try again later.");
         }
-
-        _appDbContext.Remove(findCategory);
-        await _appDbContext.SaveChangesAsync();
-
-        return true;
     }
 }

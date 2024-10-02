@@ -24,5 +24,10 @@ public class MappingProfile : Profile{
 
         CreateMap<CreateCategoryDto, Category>();
         CreateMap<Category, CategoryDto>();
+
+        CreateMap<Shipping, ShippingDto>();
+        CreateMap<CreateShippingDto, Shipping>();
+        CreateMap<UpdateShippingDto, Shipping>()
+        .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 }
