@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 public interface IRatingServices
 {
-  public Task<Rating> CreateRatingServiceAsync(CreateRatingDto createRating);
+  public Task<Rating> CreateRatingServiceAsync(CreateRatingDto createRating );
   public Task<List<RatingDto>> GetRatingAsync();
   public Task<RatingDto> FindRatingByIdServiceAsync(Guid Id);
   public Task<bool> DeleteRatingByIdServiceAsync(Guid Id);
@@ -23,27 +23,35 @@ public class RatingServices : IRatingServices
 
 
   public async Task<Rating> CreateRatingServiceAsync(CreateRatingDto createRating)
-  {
+{
     try
     {
-      var rate = _mapper.Map<Rating>(createRating);
 
-      await _appDbContext.Ratings.AddAsync(rate);
-      await _appDbContext.SaveChangesAsync();
+        var rate = _mapper.Map<Rating>(createRating);
 
-      return rate;
+        rate.ProductId = createRating.ProductId;
+        
+
+
+        await _appDbContext.Ratings.AddAsync(rate);
+
+        // Save changes to the database
+        await _appDbContext.SaveChangesAsync();
+
+        return rate;
     }
     catch (DbUpdateException dbEx)
     {
-      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
-      throw new ApplicationException("An error has occurred while saving the data to the database");
+        Console.WriteLine($"Database error related to the update has happened: {dbEx.Message}");
+        throw new ApplicationException("An error occurred while saving the data to the database.");
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
-      throw new ApplicationException("An unexpected error has occurred");
+        Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+        throw new ApplicationException("An unexpected error occurred.");
     }
-  }
+}
+
 
   public async Task<List<RatingDto>> GetRatingAsync()
   {

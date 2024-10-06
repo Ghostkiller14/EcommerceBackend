@@ -101,6 +101,14 @@ public class AppDbContext : DbContext{
                   .HasForeignKey(p => p.CategoryId)
                   .OnDelete(DeleteBehavior.Cascade);
 
+                modelBuilder.Entity<Rating>()
+                .HasOne(r =>r.product)
+                .WithMany(p => p.Ratings)
+                .HasForeignKey(r => r.ProductId);
+
+              
+
+
 
   }
 }

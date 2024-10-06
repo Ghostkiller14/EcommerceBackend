@@ -162,10 +162,15 @@ namespace Backend.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("RatingScore")
                         .HasColumnType("integer");
 
                     b.HasKey("RatingId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Ratings");
                 });
@@ -291,6 +296,17 @@ namespace Backend.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Rating", b =>
+                {
+                    b.HasOne("Product", "product")
+                        .WithMany("Ratings")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("product");
+                });
+
             modelBuilder.Entity("Category", b =>
                 {
                     b.Navigation("Products");
@@ -304,6 +320,8 @@ namespace Backend.Migrations
             modelBuilder.Entity("Product", b =>
                 {
                     b.Navigation("OrderProducts");
+
+                    b.Navigation("Ratings");
                 });
 #pragma warning restore 612, 618
         }

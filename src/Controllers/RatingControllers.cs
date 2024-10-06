@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 [ApiController]
 [Route("/api/v1/Ratings")]
@@ -9,6 +10,8 @@ public class RatingControllers: ControllerBase {
     _rateServices = rateServices;
   }
 
+
+  //[Authorize("User")]
   [HttpPost]
   public async Task<IActionResult> CreateRating([FromBody]CreateRatingDto createdRate){
     if (!ModelState.IsValid){
@@ -39,7 +42,7 @@ public class RatingControllers: ControllerBase {
     }
   }
 
-
+  [Authorize("Admin")]
   [HttpGet("{Id}")]
   public async Task<IActionResult> FindRatingById(Guid Id){
     try{
@@ -57,7 +60,7 @@ public class RatingControllers: ControllerBase {
     }
   }
 
-
+  [Authorize("User")]
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteRatingById(Guid id){
     try{
@@ -76,11 +79,13 @@ public class RatingControllers: ControllerBase {
     }
   }
 
+
+  [Authorize("User")]
   [HttpPut("{id}")]
   public async Task<IActionResult> UpdateRatingById(Guid id, UpdateRatingDto updateRating){
     try{
       var ratingData = await  _rateServices.UpdateRatingServiceAsync(id,updateRating);
-      
+
       if (ratingData == null){
         return ApiResponse.NotFound("Rating Data wasn't found by the ID provided.");
       }

@@ -23,9 +23,19 @@ public class Product{
   public Category? Category {get;set;}
 
 
-
-
-  [JsonIgnore]
+    [JsonIgnore]
     public ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+
+  // List<Rating>
+
+      [JsonIgnore]
+
+    public ICollection<Rating?> Ratings {get;set;} = new List<Rating>();
+
+
+
+
+
+
 
 }

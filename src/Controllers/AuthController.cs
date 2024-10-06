@@ -1,5 +1,3 @@
-
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,8 +17,7 @@ using System.Text;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody]UserRegisterDto userRegisterDto)
-        {
+        public async Task<IActionResult> Register([FromBody]UserRegisterDto userRegisterDto){
 
           try{
             var result = await _authService.RegisterUserService(userRegisterDto);

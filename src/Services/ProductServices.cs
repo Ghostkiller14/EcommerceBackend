@@ -54,15 +54,22 @@ public class ProductServices: IProductServices{
         }
     }
 
-    public async Task<ProductDto> FindProductByIdServiceAsync(Guid Id){
+    public async Task<ProductDto> FindProductByIdServiceAsync(Guid id){
         try{
-            var findProduct = await _appDbContext.Products.FindAsync(Id);
+            var findProduct = await _appDbContext.Products.Include(r =>r.Ratings).Include(c => c.Category).FirstOrDefaultAsync(p => p.ProductId == id) ;
 
             if(findProduct == null){
                 return null;
             }
 
+            int TotalRatingScore = findProduct.Ratings.Where(r => r != null)
+            .Sum( r => r.RatingScore);
+
+            float Average = TotalRatingScore/(findProduct.Ratings.Count());
+
             var product = _mapper.Map<ProductDto>(findProduct);
+
+            product.AverageRatingScore = Average;
             return product;
         }
         catch (DbUpdateException dbEx){

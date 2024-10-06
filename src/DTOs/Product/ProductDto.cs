@@ -13,4 +13,8 @@ public class ProductDto{
   public int? ReturnByDaysAfterOrder {get;set;} =2;
   public bool IsOnSale = false;
   public DateTime CreatedAt {get;set;} = DateTime.UtcNow;
+
+  public float AverageRatingScore {get;set;}
+
+  public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
 }

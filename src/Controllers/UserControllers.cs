@@ -32,6 +32,7 @@ public class UserControllers: ControllerBase {
 
 
 
+
         [Authorize(Roles = "User")]
         [HttpGet("profile")]
         public IActionResult GetUserProfile()
@@ -64,9 +65,8 @@ public class UserControllers: ControllerBase {
       return ApiResponse.ServerError("Server Error: " + ex.Message);
     }
   }
-
+  
   [Authorize(Roles = "Admin")]
-
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteUserById(Guid id){
     try{
@@ -80,6 +80,8 @@ public class UserControllers: ControllerBase {
       return ApiResponse.BadRequest("Server Error: " + ex.Message);
     }
   }
+
+  [Authorize(Roles = "Admin")]
 
   [HttpPut("{id}")]
   public async Task<IActionResult> UpdateUserById(Guid id, UpdateUserDto updateUser){
