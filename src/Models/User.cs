@@ -13,7 +13,7 @@ public class User{
 // refrence for the Order
 // Each user can have many order :)
 
-[JsonIgnore]
+//[JsonIgnore]
   public List<Order> orders = new List<Order>();
   public DateTime CreatedAt {get;set;} = DateTime.UtcNow;
 }

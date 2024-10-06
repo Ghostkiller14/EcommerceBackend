@@ -1,75 +1,117 @@
 
-
 using Microsoft.AspNetCore.Mvc;
 
-   [ApiController]
+    [ApiController]
     [Route("/api/v1/orders")]
-public class OrderControllers: ControllerBase {
+public class OrderController : ControllerBase
+{
+    private readonly IOrderService _orderService;
 
-    private readonly OrderServices _orderServices;
-
-
-    public OrderControllers(OrderServices orderServices){
-
-    _orderServices = orderServices;
-  }
-
-
-    [HttpPost]
-   public async Task<IActionResult> CreateOrder([FromBody]CreateOrderDto createdOrder){
-
-    var order =  await _orderServices.CreateOrderServiceAsync(createdOrder);
-
-
-    var response = new { Message = "User created successfully", Order = order };
-    return Created($"/api/users/{order.UserId}",response);
-
-}
-    [HttpGet]
-    public async Task<IActionResult> GetOrders(){
-
-    var orders =  await _orderServices.GetOrdersAsync();
-
-    var response = new { StatusCode = 200, Message = "Users are returned successfully", Orders = orders };
-    return Ok(response);
-  }
-
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> FindOrderByid(Guid id){
-
-    var order =   await _orderServices.FindOrderByIdServiceAsync(id);
-
-    return Ok(order);
-  }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteOrderByid(Guid id){
-
-    var order =   await _orderServices.DeleteUserByIdServiceAsync(id);
-
-    if(!order){
-
-      return ApiResponse.NotFound();
+    public OrderController(IOrderService orderService)
+    {
+        _orderService = orderService;
     }
 
-    return ApiResponse.Success(order);
-  }
+    // POST: /api/orders
+    [HttpPost]
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto createOrderDto)
+    {
+      try{
+
+          var order = await _orderService.CreateOrderAsync(createOrderDto);
 
 
+        if (!ModelState.IsValid){
+            return BadRequest(ModelState);
+        }
+
+        return ApiResponse.Created(order, "the Order has been created Successfully! :-)");
+
+      }
+     catch(ApplicationException ex){
+          return ApiResponse.ServerError("Server error: " + ex.Message);
+        }catch(Exception ex){
+          return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+        }
+
+    }
+
+    // GET: /api/orders/{id}
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetOrderById(Guid id)
+    {
+
+      try{
+
+        var order = await _orderService.GetOrderByIdAsync(id);
+
+        if(order == null){
+          return ApiResponse.BadRequest("Invalid ID not found");
+        }
+        return ApiResponse.Success(order,"Order has Returned Successfully :-)");
+      }catch(ApplicationException ex){
+          return ApiResponse.ServerError("Server error: " + ex.Message);
+        }catch(Exception ex){
+          return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+        }
+
+
+
+
+
+    }
+
+    // PUT: /api/orders/{id}
     [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] CreateOrderDto updateOrderDto)
+    {
 
-    public async Task<IActionResult> UpdateOrderByid(Guid id , UpdateOrderDto updateOrder){
+      try{
 
-    var updateData = await  _orderServices.UpdateOrderServiceAsync(id,updateOrder);
+        var updatedOrder = await _orderService.UpdateOrderAsync(id, updateOrderDto);
+          if (!ModelState.IsValid){
+             return BadRequest();
+          }
 
-    return ApiResponse.Success(updateData , "The Order has bing updates succesfully");
+          if(updatedOrder == null){
+            return ApiResponse.BadRequest("Invalid ID not found :-( ");
+          }
+
+        return ApiResponse.Success(updatedOrder, "Order has been Updated Successfully :-)");
+      }
+          catch(ApplicationException ex){
+          return ApiResponse.ServerError("Server error: " + ex.Message);
+        }catch(Exception ex){
+          return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+        }
 
 
-  }
+      }
+
+    // DELETE: /api/orders/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteOrder(Guid id)
+    {
+      try{
+        var result = await _orderService.DeleteOrderByIdAsync(id);
 
 
+        if (!result){
+            return ApiResponse.BadRequest("The Id you trying to find does Not Exist");
+      }
+
+      return ApiResponse.Success(result , "Order has Deleted Successfully :-) ");
+      }catch(ApplicationException ex){
+          return ApiResponse.ServerError("Server error: " + ex.Message);
+        }catch(Exception ex){
+          return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+        }
 
 
-
+    }
 }
+
+
+
+
+

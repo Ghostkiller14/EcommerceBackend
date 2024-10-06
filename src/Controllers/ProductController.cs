@@ -6,7 +6,7 @@ public class ProductControllers : ControllerBase{
 
     private readonly IProductServices _productServices;
 
-    public ProductControllers(ProductServices productServices){
+    public ProductControllers(IProductServices productServices){
         _productServices = productServices;
     }
 
@@ -44,11 +44,11 @@ public class ProductControllers : ControllerBase{
     public async Task<IActionResult> FindProductById(Guid id){
         try{
             var product =   await _productServices.FindProductByIdServiceAsync(id);
-     
+
             if (product == null){
                 return ApiResponse.BadRequest("Invalid ID not found");
             }
-     
+
             return ApiResponse.Success(product, "Product by ID found Successfully!");
         }catch(ApplicationException ex){
           return ApiResponse.ServerError("Server error: " + ex.Message);

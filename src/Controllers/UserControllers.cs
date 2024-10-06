@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+
+using Microsoft.AspNetCore.Authorization;
+
 [ApiController]
 [Route("/api/v1/users")]
 
@@ -9,22 +12,35 @@ public class UserControllers: ControllerBase {
     _userServices = userServices;
   }
 
-  [HttpPost]
-  public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
-    if (!ModelState.IsValid){
-      return ApiResponse.BadRequest("Invalid User Data");
-    }
-    try{
-      var user =  await _userServices.CreateUserServiceAsync(createdUser);
+  // I don't think we need to create user anymore because we are using the Regester Authntication but it might be used for the admin if he want to creat a user for somone, right now i think there is no need but later we might use it.
 
-      return ApiResponse.Created(user, "User Created Successfully!");
-    }catch(ApplicationException ex){
-      return ApiResponse.ServerError("Server error: " + ex.Message);
-    }catch(Exception ex){
-      return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
-    }
-  }
+  //   [HttpPost]
+  //   public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
+  //   if (!ModelState.IsValid){
+  //     return ApiResponse.BadRequest("Invalid User Data");
+  //   }
+  //   try{
+  //     var user =  await _userServices.CreateUserServiceAsync(createdUser);
 
+  //     return ApiResponse.Created(user, "User Created Successfully!");
+  //   }catch(ApplicationException ex){
+  //     return ApiResponse.ServerError("Server error: " + ex.Message);
+  //   }catch(Exception ex){
+  //     return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+  //   }
+  // }
+
+
+
+        [Authorize(Roles = "User")]
+        [HttpGet("profile")]
+        public IActionResult GetUserProfile()
+        {
+            return Ok("user data is returned");
+        }
+
+
+  [Authorize(Roles = "Admin")]
   [HttpGet]
   public async Task<IActionResult> GetUsers(){
     try{
@@ -49,6 +65,8 @@ public class UserControllers: ControllerBase {
     }
   }
 
+  [Authorize(Roles = "Admin")]
+
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteUserById(Guid id){
     try{
@@ -68,7 +86,7 @@ public class UserControllers: ControllerBase {
     if (!ModelState.IsValid){
       return ApiResponse.BadRequest("Invalid Update Data");
     }
-    
+
     try{
       var userData = await _userServices.UpdateUserServiceAsync(id, updateUser);
       return ApiResponse.Success(userData, "User has been Updated!");

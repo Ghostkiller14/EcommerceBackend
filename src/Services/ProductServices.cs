@@ -2,7 +2,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 public  interface IProductServices{
-    public  Task<Product> CreateProductServiceAsync(CreateProductDto createProduct);
+    public  Task<ProductDto> CreateProductServiceAsync(CreateProductDto createProduct);
     public  Task<List<ProductDto>> GetProductAsync();
     public  Task<ProductDto> FindProductByIdServiceAsync(Guid Id);
     public  Task<bool> DeleteProductByIdServiceAsync(Guid Id);
@@ -16,14 +16,17 @@ public class ProductServices: IProductServices{
         _mapper = mapper;
     }
 
-    public async Task<Product> CreateProductServiceAsync(CreateProductDto createProduct){
+    public async Task<ProductDto> CreateProductServiceAsync(CreateProductDto createProduct){
         try{
             var product = _mapper.Map<Product>(createProduct);
 
             await _appDbContext.Products.AddAsync(product);
             await _appDbContext.SaveChangesAsync();
 
-            return product;
+           var productData = _mapper.Map<ProductDto>(product);
+
+            return productData;
+
         }catch(DbUpdateException ex){
             Console.WriteLine($"Database Update Err: {ex.Message}");
             throw new ApplicationException("A DB Error Happened during the creation of the Product");
@@ -35,7 +38,8 @@ public class ProductServices: IProductServices{
 
     public async Task<List<ProductDto>> GetProductAsync(){
         try{
-            var products =  await _appDbContext.Products.ToListAsync();
+            var products =  await _appDbContext.Products.Include(c =>c.Category).ToListAsync();
+
             var productData = _mapper.Map<List<ProductDto>>(products);
 
             return productData;
@@ -105,7 +109,7 @@ public class ProductServices: IProductServices{
             _mapper.Map(updateProduct, findProduct);
             _appDbContext.Products.Update(findProduct);
             await _appDbContext.SaveChangesAsync();
-            
+
             var productData = _mapper.Map<ProductDto>(findProduct);
 
             return productData;

@@ -1,106 +1,162 @@
-
-
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-public class OrderServices{
 
 
- private readonly AppDbContext _appDbContext;
-   private readonly IMapper _mapper;
+public interface IOrderService{
+    public  Task<OrderDto> CreateOrderAsync(CreateOrderDto createOrderDto);
+    public  Task<OrderDto?> GetOrderByIdAsync(Guid orderId);
+
+    public  Task<OrderDto?> UpdateOrderAsync(Guid orderId, CreateOrderDto updateOrderDto);
+
+    public  Task<bool> DeleteOrderByIdAsync(Guid orderId);
+
+
+}
 
 
 
-      public OrderServices(AppDbContext appDbContext , IMapper mapper){
-          _mapper = mapper;
-          _appDbContext = appDbContext;
-      }
+public class OrderService:IOrderService
+{
+    private readonly AppDbContext _appDbContext;
+    private readonly IMapper _mapper;
 
-  public async Task<Order> CreateOrderServiceAsync(CreateOrderDto createOrder){
+    public OrderService(AppDbContext appDbContext, IMapper mapper)
+    {
+        _appDbContext = appDbContext;
+        _mapper = mapper;
+    }
 
-      // Map Create User To user
-        var order = _mapper.Map<Order>(createOrder);
+    // Create a new order
+    public async Task<OrderDto> CreateOrderAsync(CreateOrderDto createOrderDto)
+    {
+      try{
+        var order = new Order
+        {
+            UserId = createOrderDto.UserId,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        foreach (var orderProductDto in createOrderDto.OrderProducts)
+        {
+          // check whether this product is existed or not
+          // quantity or stock 
+           var orderProduct = new OrderProduct
+           {
+        ProductId = orderProductDto.ProductId,
+        Quantity = orderProductDto.Quantity,
+        Price = orderProductDto.Price
+        };
+        order.OrderProducts.Add(orderProduct);
+
+        }
+
 
         await _appDbContext.Orders.AddAsync(order);
         await _appDbContext.SaveChangesAsync();
 
-        return order;
+        var orderDto = _mapper.Map<OrderDto>(order);
+        return orderDto;
+      }
+       catch(DbUpdateException ex){
+            Console.WriteLine($"Database Update Err: {ex.Message}");
+            throw new ApplicationException("A DB Error Happened during the creation of the Product");
+        }catch(Exception ex){
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error occurred. Please try again later.");
 
-  }
-
-
-
-  public async Task<List<OrderDto>> GetOrdersAsync(){
-
-    var orders =  await _appDbContext.Orders.ToListAsync();
-
-    var requiredorderData = _mapper.Map<List<OrderDto>>(orders);
-
-    return requiredorderData;
-
-
-  }
-
-
-public async Task<OrderDto> FindOrderByIdServiceAsync(Guid Id){
-
-    var findOrder = await _appDbContext.Orders.Include(u => u.User).FirstOrDefaultAsync(o => o.OrderId == Id );
-
-    if(findOrder == null){
-      return null;
     }
-
-
-      var userData = _mapper.Map<OrderDto>(findOrder);
-
-    return userData;
-
-
   }
 
+    // Get order by ID
+    public async Task<OrderDto?> GetOrderByIdAsync(Guid orderId)
+    {
+      try{
+       var order = await _appDbContext.Orders
+        .Include(o => o.OrderProducts)
+        .ThenInclude(op => op.Product)  // Include Product details
+        .Include(o => o.User)  // Include User details
+        .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+        if (order == null)
+            return null;
+
+        return _mapper.Map<OrderDto>(order);
 
 
-  public async Task<bool> DeleteUserByIdServiceAsync(Guid Id){
+      } catch(DbUpdateException ex){
+            Console.WriteLine($"Database Update Err: {ex.Message}");
+            throw new ApplicationException("A DB Error Happened during the creation of the Product");
+        }catch(Exception ex){
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error occurred. Please try again later.");
 
-        var findOrder = await _appDbContext.Orders.FindAsync(Id);
 
+    }
+  }
 
-        if(findOrder == null){
-          return false;
+    // Update an order
+    public async Task<OrderDto?> UpdateOrderAsync(Guid orderId, CreateOrderDto updateOrderDto)
+    {
 
+      try{
+        var order = await _appDbContext.Orders
+            .Include(o => o.OrderProducts)
+            .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+        if (order == null)
+            return null;
+
+        // Clear existing products and add updated products
+        order.OrderProducts.Clear();
+        foreach (var orderProductDto in updateOrderDto.OrderProducts)
+        {
+            var orderProduct = new OrderProduct
+            {
+                ProductId = orderProductDto.ProductId,
+                Quantity = orderProductDto.Quantity,
+                Price = orderProductDto.Price
+            };
+
+            order.OrderProducts.Add(orderProduct);
         }
 
-        _appDbContext.Remove(findOrder);
+        _appDbContext.Orders.Update(order);
         await _appDbContext.SaveChangesAsync();
 
-        return true;
+        return _mapper.Map<OrderDto>(order);
 
-  }
+      } catch(DbUpdateException ex){
+            Console.WriteLine($"Database Update Err: {ex.Message}");
+            throw new ApplicationException("A DB Error Happened during the creation of the Product");
+        }catch(Exception ex){
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error occurred. Please try again later.");
+        }
 
 
-
-
-
-  public async Task<OrderDto> UpdateOrderServiceAsync(Guid Id , UpdateOrderDto updateOrder){
-    var findOrder = await _appDbContext.Orders.FindAsync(Id);
-
-    if (findOrder == null){
-      return null;
     }
 
-    // Map the updateUser values to the found user entity
-    _mapper.Map(updateOrder, findOrder);
+    // Delete an order by ID
+    public async Task<bool> DeleteOrderByIdAsync(Guid orderId)
+    {
+      try{
+        var order = await _appDbContext.Orders
+            .Include(o => o.OrderProducts)
+            .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
-    // Update the entity in the database
-    _appDbContext.Orders.Update(findOrder);
-    await _appDbContext.SaveChangesAsync();
+        if (order == null)
+            return false;
 
-    // Map the updated entity to UserDto
-    var orderData = _mapper.Map<OrderDto>(findOrder);
+        _appDbContext.Orders.Remove(order);
+        await _appDbContext.SaveChangesAsync();
+        return true;
+      } catch(DbUpdateException ex){
+            Console.WriteLine($"Database Update Err: {ex.Message}");
+            throw new ApplicationException("A DB Error Happened during the creation of the Product");
+        }catch(Exception ex){
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error occurred. Please try again later.");
+        }
 
-    return orderData;
-  }
-
-
-
-
+    }
 }

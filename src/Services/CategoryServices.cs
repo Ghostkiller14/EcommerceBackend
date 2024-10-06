@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 public  interface ICategoryServices{
     public  Task<Category> CreateCategoryServiceAsync(CreateCategoryDto createCategory);
-    public  Task<List<CategoryDto>> GetCategoryAsync();
+    public  Task<List<CategoryDto>> GetCategoryServiceAsync();
     public  Task<bool> DeleteCategoryByIdServiceAsync(Guid Id);
 }
 
-public class CategoryService{
+public class CategoryService : ICategoryServices{
     private readonly AppDbContext _appDbContext;
     private readonly IMapper _mapper;
 

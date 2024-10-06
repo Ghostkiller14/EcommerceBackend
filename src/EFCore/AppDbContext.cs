@@ -10,6 +10,9 @@ public class AppDbContext : DbContext{
   public DbSet<Category> Categories { get; set; }
   public DbSet<Order> Orders { get; set; }
 
+  public DbSet<OrderProduct> OrderProducts { get; set; }
+
+
 
   protected override void OnModelCreating(ModelBuilder modelBuilder){
 
@@ -41,7 +44,7 @@ public class AppDbContext : DbContext{
       entity.HasIndex(u => u.TrackingNumber).IsUnique();
       entity.Property(u=> u.ShippingDetails).HasMaxLength(255);
      });
-     
+
     modelBuilder.Entity<Product>(entity => {
       entity.HasKey(e => e.ProductId);
       entity.Property(e => e.ProductId).HasDefaultValueSql("uuid_generate_v4()");
@@ -57,7 +60,7 @@ public class AppDbContext : DbContext{
 
     modelBuilder.Entity<Category>(entity => {
       entity.HasKey(category => category.CategoryId);
-      entity.Property(category => category.CategoryId).HasDefaultValueSql("uuid_generate_v4()"); 
+      entity.Property(category => category.CategoryId).HasDefaultValueSql("uuid_generate_v4()");
       entity.Property(category => category.Name).IsRequired().HasMaxLength(100);
       entity.HasIndex(category => category.Name).IsUnique();
       entity.Property(category => category.Slug).IsRequired().HasMaxLength(100);
@@ -65,17 +68,39 @@ public class AppDbContext : DbContext{
     });
 
     modelBuilder.Entity<Rating>(entity =>{
+
+
       entity.HasKey(r => r.RatingId);
       entity.Property(r => r.RatingId).HasDefaultValueSql("uuid_generate_v4()");
       entity.Property(r => r.FeedBack).HasMaxLength(150);
       entity.Property(r => r.RatingScore);
       entity.Property(r => r.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+
     });
-    
-    modelBuilder.Entity<Category>()
-      .HasMany(c => c.Products)
-      .WithOne(p => p.Category)
-      .HasForeignKey(p => p.CategoryId)
-      .OnDelete(DeleteBehavior.Cascade);
+
+
+
+               modelBuilder.Entity<OrderProduct>()
+               .HasKey(op => new { op.OrderId, op.ProductId });
+
+               modelBuilder.Entity<OrderProduct>()
+               .HasOne(op => op.Order)
+               .WithMany(o => o.OrderProducts)
+               .HasForeignKey(op => op.OrderId);
+
+               modelBuilder.Entity<OrderProduct>()
+               .HasOne(op => op.Product)
+               .WithMany(p => p.OrderProducts)
+               .HasForeignKey(op => op.ProductId);
+
+
+                modelBuilder.Entity<Category>()
+                  .HasMany(c => c.Products)
+                  .WithOne(p => p.Category)
+                  .HasForeignKey(p => p.CategoryId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+
   }
 }

@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController, Route("/api/v1/categories")]
 
 public class CategoryController : ControllerBase {
-    private readonly CategoryService _categoryService;
-    public CategoryController(CategoryService categoryService) {
+    private readonly ICategoryServices _categoryService;
+    public CategoryController(ICategoryServices categoryService) {
         _categoryService = categoryService;
     }
 
