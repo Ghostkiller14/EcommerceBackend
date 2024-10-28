@@ -17,6 +17,6 @@ public class Order{
 
 
   [JsonIgnore]
-    public ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+    public ICollection<OrderItem> OrderItem { get; set; }
 
   }

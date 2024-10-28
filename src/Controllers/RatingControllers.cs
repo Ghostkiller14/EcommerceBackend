@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 [ApiController]
-[Route("/api/v1/Ratings")]
+[Route("/api/v1/ratings")]
 
 public class RatingControllers: ControllerBase {
   private readonly IRatingServices _rateServices;
@@ -43,7 +43,7 @@ public class RatingControllers: ControllerBase {
   }
 
   [Authorize("Admin")]
-  [HttpGet("{Id}")]
+  [HttpGet("{id}")]
   public async Task<IActionResult> FindRatingById(Guid Id){
     try{
       var rate = await _rateServices.FindRatingByIdServiceAsync(Id);

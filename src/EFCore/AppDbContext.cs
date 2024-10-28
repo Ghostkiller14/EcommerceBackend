@@ -10,7 +10,7 @@ public class AppDbContext : DbContext{
   public DbSet<Category> Categories { get; set; }
   public DbSet<Order> Orders { get; set; }
 
-  public DbSet<OrderProduct> OrderProducts { get; set; }
+  public DbSet<OrderItem> OrderProducts { get; set; }
 
 
 
@@ -81,17 +81,17 @@ public class AppDbContext : DbContext{
 
 
 
-               modelBuilder.Entity<OrderProduct>()
+               modelBuilder.Entity<OrderItem>()
                .HasKey(op => new { op.OrderId, op.ProductId });
 
-               modelBuilder.Entity<OrderProduct>()
+               modelBuilder.Entity<OrderItem>()
                .HasOne(op => op.Order)
-               .WithMany(o => o.OrderProducts)
+               .WithMany(o => o.OrderItem)
                .HasForeignKey(op => op.OrderId);
 
-               modelBuilder.Entity<OrderProduct>()
+               modelBuilder.Entity<OrderItem>()
                .HasOne(op => op.Product)
-               .WithMany(p => p.OrderProducts)
+               .WithMany(p => p.OrderItem)
                .HasForeignKey(op => op.ProductId);
 
 
@@ -106,7 +106,7 @@ public class AppDbContext : DbContext{
                 .WithMany(p => p.Ratings)
                 .HasForeignKey(r => r.ProductId);
 
-              
+
 
 
 

@@ -14,22 +14,22 @@ public class UserControllers: ControllerBase {
 
   // I don't think we need to create user anymore because we are using the Regester Authntication but it might be used for the admin if he want to creat a user for somone, right now i think there is no need but later we might use it.
 
-  //   [HttpPost]
-  //   public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
-  //   if (!ModelState.IsValid){
-  //     return ApiResponse.BadRequest("Invalid User Data");
-  //   }
-  //   try{
-  //     var user =  await _userServices.CreateUserServiceAsync(createdUser);
+   [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
+    if (!ModelState.IsValid){
+      return ApiResponse.BadRequest("Invalid User Data");
+    }
+    try{
+      var user =  await _userServices.CreateUserServiceAsync(createdUser);
 
-  //     return ApiResponse.Created(user, "User Created Successfully!");
-  //   }catch(ApplicationException ex){
-  //     return ApiResponse.ServerError("Server error: " + ex.Message);
-  //   }catch(Exception ex){
-  //     return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
-  //   }
-  // }
-
+      return ApiResponse.Created(user, "User Created Successfully!");
+    }catch(ApplicationException ex){
+      return ApiResponse.ServerError("Server error: " + ex.Message);
+    }catch(Exception ex){
+      return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+    }
+  }
 
 
 
@@ -39,6 +39,7 @@ public class UserControllers: ControllerBase {
         {
             return Ok("user data is returned");
         }
+
 
 
   [Authorize(Roles = "Admin")]
@@ -53,6 +54,7 @@ public class UserControllers: ControllerBase {
     }
   }
 
+  [Authorize(Roles = "Admin")]
   [HttpGet("{id}")]
   public async Task<IActionResult> FindUserById(Guid id){
     try{
@@ -65,7 +67,7 @@ public class UserControllers: ControllerBase {
       return ApiResponse.ServerError("Server Error: " + ex.Message);
     }
   }
-  
+
   [Authorize(Roles = "Admin")]
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteUserById(Guid id){
@@ -81,8 +83,8 @@ public class UserControllers: ControllerBase {
     }
   }
 
-  [Authorize(Roles = "Admin")]
 
+  [Authorize(Roles = "Admin")]
   [HttpPut("{id}")]
   public async Task<IActionResult> UpdateUserById(Guid id, UpdateUserDto updateUser){
     if (!ModelState.IsValid){

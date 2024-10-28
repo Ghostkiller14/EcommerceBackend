@@ -4,6 +4,7 @@ public class MappingProfile : Profile{
     public MappingProfile(){
         CreateMap<User, UserDto>();
         CreateMap<UserRegisterDto, User>();
+        CreateMap<UserLoginDto, User>();
         CreateMap<CreateUserDto, User>();
 
         CreateMap<UpdateUserDto, User>()
@@ -32,7 +33,7 @@ public class MappingProfile : Profile{
         CreateMap<UpdateShippingDto, Shipping>()
         .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-        CreateMap<OrderProduct, OrderProductDto>();
+        CreateMap<OrderItem, OrderItemDto>();
 
              // Map product name
 

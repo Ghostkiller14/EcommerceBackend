@@ -19,8 +19,7 @@ public class UserRegisterDto
 
         public string Address {get;set;} = string.Empty;
         public int Age {get;set;}
-
-         public bool IsAdmin = false;
-        public bool IsBanned = false;
+        public bool IsAdmin {get; set; } = false;
+        public bool IsBanned {get;set;} = false;
 
     }

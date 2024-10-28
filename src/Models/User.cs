@@ -7,8 +7,8 @@ public class User{
   public required string Email {get;set;}
   public int Age {get;set;}
   public string? Address {get;set;}
-  public bool IsAdmin = false;
-  public bool IsBanned = false;
+  public bool IsAdmin {get;set;}= false;
+  public bool IsBanned {get;set;}= false;
 
 // refrence for the Order
 // Each user can have many order :)

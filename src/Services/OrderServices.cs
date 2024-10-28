@@ -30,23 +30,24 @@ public class OrderService:IOrderService
     public async Task<OrderDto> CreateOrderAsync(CreateOrderDto createOrderDto)
     {
       try{
+
         var order = new Order
         {
             UserId = createOrderDto.UserId,
             CreatedAt = DateTime.UtcNow
         };
 
-        foreach (var orderProductDto in createOrderDto.OrderProducts)
+        foreach (var OrderItemDto in createOrderDto.OrderItem)
         {
           // check whether this product is existed or not
-          // quantity or stock 
-           var orderProduct = new OrderProduct
+          // quantity or stock
+           var orderProduct = new OrderItem
            {
-        ProductId = orderProductDto.ProductId,
-        Quantity = orderProductDto.Quantity,
-        Price = orderProductDto.Price
+        ProductId = OrderItemDto.ProductId,
+        Quantity = OrderItemDto.Quantity,
+        Price = OrderItemDto.Price
         };
-        order.OrderProducts.Add(orderProduct);
+        order.OrderItem.Add(orderProduct);
 
         }
 
@@ -72,7 +73,7 @@ public class OrderService:IOrderService
     {
       try{
        var order = await _appDbContext.Orders
-        .Include(o => o.OrderProducts)
+        .Include(o => o.OrderItem)
         .ThenInclude(op => op.Product)  // Include Product details
         .Include(o => o.User)  // Include User details
         .FirstOrDefaultAsync(o => o.OrderId == orderId);
@@ -100,24 +101,24 @@ public class OrderService:IOrderService
 
       try{
         var order = await _appDbContext.Orders
-            .Include(o => o.OrderProducts)
+            .Include(o => o.OrderItem)
             .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
         if (order == null)
             return null;
 
         // Clear existing products and add updated products
-        order.OrderProducts.Clear();
-        foreach (var orderProductDto in updateOrderDto.OrderProducts)
+        order.OrderItem.Clear();
+        foreach (var orderProductDto in updateOrderDto.OrderItem)
         {
-            var orderProduct = new OrderProduct
+            var orderProduct = new OrderItem
             {
                 ProductId = orderProductDto.ProductId,
                 Quantity = orderProductDto.Quantity,
                 Price = orderProductDto.Price
             };
 
-            order.OrderProducts.Add(orderProduct);
+            order.OrderItem.Add(orderProduct);
         }
 
         _appDbContext.Orders.Update(order);
@@ -141,7 +142,7 @@ public class OrderService:IOrderService
     {
       try{
         var order = await _appDbContext.Orders
-            .Include(o => o.OrderProducts)
+            .Include(o => o.OrderItem)
             .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
         if (order == null)

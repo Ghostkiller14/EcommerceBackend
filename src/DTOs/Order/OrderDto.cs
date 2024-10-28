@@ -5,7 +5,7 @@ public class OrderDto{
   public Guid UserId {get;set;}
   public DateTime CreatedAt {get;set;} = DateTime.UtcNow;
 
-    public ICollection<OrderProductDto> OrderProducts { get; set; } = new List<OrderProductDto>();
+    public ICollection<OrderItemDto> OrderItem { get; set; } = new List<OrderItemDto>();
 
 
 

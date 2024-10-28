@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 public  interface IProductServices{
     public  Task<ProductDto> CreateProductServiceAsync(CreateProductDto createProduct);
+     public PagedResult<ProductDto> GetAllProducts(int pageNumber, int pageSize);
     public  Task<List<ProductDto>> GetProductAsync();
     public  Task<ProductDto> FindProductByIdServiceAsync(Guid Id);
     public  Task<bool> DeleteProductByIdServiceAsync(Guid Id);
@@ -53,6 +54,36 @@ public class ProductServices: IProductServices{
             throw new ApplicationException("An unexpected error has occurred");
         }
     }
+
+
+    public PagedResult<ProductDto> GetAllProducts(int pageNumber, int pageSize){
+      var totalProducts = _appDbContext.Products.Count();
+      Console.WriteLine($"{totalProducts}");
+
+      var paginatedProducts = _appDbContext.Products.Skip((pageNumber -1) * pageSize).Take(pageSize).Select(p => new ProductDto {
+
+        ProductId = p.ProductId,
+        Name = p.Name,
+        Description = p.Description,
+        Price = p.Price,
+        CreatedAt = p.CreatedAt
+      }).ToList();
+
+      return new PagedResult<ProductDto> {
+      PageNumber = pageNumber,
+      PageSize = pageSize,
+      TotalPages = (int)Math.Ceiling(totalProducts / (double)pageSize),
+      TotalItems = totalProducts,
+      Items = paginatedProducts
+      };
+
+
+
+
+
+
+    }
+
 
     public async Task<ProductDto> FindProductByIdServiceAsync(Guid id){
         try{

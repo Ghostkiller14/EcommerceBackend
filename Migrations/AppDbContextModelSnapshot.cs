@@ -73,7 +73,7 @@ namespace Backend.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("OrderProduct", b =>
+            modelBuilder.Entity("OrderItem", b =>
                 {
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
@@ -266,16 +266,16 @@ namespace Backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("OrderProduct", b =>
+            modelBuilder.Entity("OrderItem", b =>
                 {
                     b.HasOne("Order", "Order")
-                        .WithMany("OrderProducts")
+                        .WithMany("OrderItem")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Product", "Product")
-                        .WithMany("OrderProducts")
+                        .WithMany("OrderItem")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -314,12 +314,12 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Order", b =>
                 {
-                    b.Navigation("OrderProducts");
+                    b.Navigation("OrderItem");
                 });
 
             modelBuilder.Entity("Product", b =>
                 {
-                    b.Navigation("OrderProducts");
+                    b.Navigation("OrderItem");
 
                     b.Navigation("Ratings");
                 });

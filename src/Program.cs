@@ -14,7 +14,6 @@ var jwtIssuer = Environment.GetEnvironmentVariable("JWT__ISSUER") ?? throw new I
 var jwtAudience = Environment.GetEnvironmentVariable("JWT__AUDIENCE") ?? throw new InvalidOperationException("JWT Audience is missing in environment variables.");
 var dbConnectionaString = Environment.GetEnvironmentVariable("DEFAILT__CONNECTION__STRING") ?? throw new InvalidOperationException("datbase connection url is missing in environment variables.");
 
-Console.WriteLine($"{dbConnectionaString}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(dbConnectionaString));
@@ -25,12 +24,10 @@ builder.Services.AddControllers()
     options.SuppressModelStateInvalidFilter = true; // Disable automatic model validation response
 });
 builder.Services.AddScoped<IUserServices, UserServices>();
-
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IRatingServices , RatingServices>();
 builder.Services.AddScoped<ICategoryServices , CategoryService>();
-
 builder.Services.AddScoped<IProductServices,ProductServices>();
-
 builder.Services.AddScoped<IOrderService,OrderService>();
 
 
@@ -94,15 +91,15 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
-// builder.Services.AddCors(options =>
-// {
-//     options.AddPolicy("AllowSpecificOrigins", builder =>
-//     {
-//         builder.WithOrigins("http://localhost:5432")
-//         .AllowAnyHeader()
-//         .AllowCredentials();
-//     });
-// });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins", builder =>
+    {
+        builder.WithOrigins("http://localhost:5432")
+        .AllowAnyHeader()
+        .AllowCredentials();
+    });
+});
 
 
 // builder.Services.AddDbContext<AppDbContext>(options =>
