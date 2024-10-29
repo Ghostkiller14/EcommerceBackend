@@ -103,21 +103,14 @@ builder.Services.AddCors(options =>
 });
 
 
-// builder.Services.AddDbContext<AppDbContext>(options =>
-//   options.UseNpgsql(defaultConnection));
-
-
-
-
-
-
-
 
 var app = builder.Build();
 
 app.MapGet("/", () => "Api running well");
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowSpecificOrigins");
 
 app.MapControllers();
 
