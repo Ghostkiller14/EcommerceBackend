@@ -93,11 +93,12 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigins", builder =>
+    options.AddPolicy("AllowSpecificOrigins", policyBuilder =>
     {
-        builder.WithOrigins("http://localhost:5173")
-        .AllowAnyHeader()
-        .AllowCredentials();
+        policyBuilder.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod() // Allows all HTTP methods
+            .AllowCredentials();
     });
 });
 
