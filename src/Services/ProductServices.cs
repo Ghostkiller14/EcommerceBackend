@@ -93,14 +93,19 @@ public class ProductServices: IProductServices{
                 return null;
             }
 
-            int TotalRatingScore = findProduct.Ratings.Where(r => r != null)
-            .Sum( r => r.RatingScore);
+            // int TotalRatingScore = findProduct.Ratings.Where(r => r != null)
+            // .Sum( r => r.RatingScore);
 
-            float Average = TotalRatingScore/(findProduct.Ratings.Count());
+            // if(findProduct.Ratings.Count() <= 0){
+            //   return null;
+
+            // }
+            // float Average = TotalRatingScore/(findProduct.Ratings.Count());
+
 
             var product = _mapper.Map<ProductDto>(findProduct);
 
-            product.AverageRatingScore = Average;
+            // product.AverageRatingScore = Average;
             return product;
         }
         catch (DbUpdateException dbEx){
