@@ -72,7 +72,7 @@ public class ProductControllers : ControllerBase{
     }
 
 
-    [HttpGet("{name}")]
+    [HttpGet("product-name/{name}")]
     public async Task<IActionResult> FindProductByName(string name){
 
     try{
