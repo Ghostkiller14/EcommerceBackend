@@ -54,7 +54,7 @@ public class ProductControllers : ControllerBase{
   // }
 
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> FindProductById(Guid id){
         try{
             var product =   await _productServices.FindProductByIdServiceAsync(id);
@@ -70,6 +70,30 @@ public class ProductControllers : ControllerBase{
           return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
         }
     }
+
+
+    [HttpGet("{name}")]
+    public async Task<IActionResult> FindProductByName(string name){
+
+    try{
+            var product =   await _productServices.FindProductByNameAsync(name);
+
+            if (product == null){
+                return ApiResponse.BadRequest(" name not found");
+            }
+
+            return ApiResponse.Success(product, "Product by ID found Successfully!");
+        }catch(ApplicationException ex){
+          return ApiResponse.ServerError("Server error: " + ex.Message);
+        }catch(Exception ex){
+          return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+        }
+
+
+
+
+    }
+
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProductById(Guid id){

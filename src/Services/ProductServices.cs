@@ -3,9 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 public  interface IProductServices{
     public  Task<ProductDto> CreateProductServiceAsync(CreateProductDto createProduct);
-     public PagedResult<ProductDto> GetAllProducts(int pageNumber, int pageSize);
+    public PagedResult<ProductDto> GetAllProducts(int pageNumber, int pageSize);
     public  Task<List<ProductDto>> GetProductAsync();
     public  Task<ProductDto> FindProductByIdServiceAsync(Guid Id);
+    public  Task<List<ProductDto>> FindProductByNameAsync(string name);
     public  Task<bool> DeleteProductByIdServiceAsync(Guid Id);
     public  Task<ProductDto> UpdateProductServiceAsync(Guid Id , UpdateProductDto updateProduct);
 }
@@ -116,6 +117,36 @@ public class ProductServices: IProductServices{
             Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
             throw new ApplicationException("An unexpected error has occurred");
         }
+    }
+
+    public async Task<List<ProductDto>> FindProductByNameAsync(string name){
+            try{
+            var findProduct = await _appDbContext.Products.Include(r =>r.Ratings).Include(c => c.Category).Where(p => p.Name.ToLower().Contains(name.ToLower())).ToListAsync() ;
+
+            if(findProduct == null){
+              return null;
+            }
+
+            var product = _mapper.Map<List<ProductDto>>(findProduct);
+
+
+            return product;
+
+
+            }
+
+            catch (DbUpdateException dbEx){
+            Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+            throw new ApplicationException("An error has occurred while saving the data to the database");
+        }
+        catch (Exception ex){
+            Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error has occurred");
+        }
+
+
+
+
     }
 
     public async Task<bool> DeleteProductByIdServiceAsync(Guid Id){
