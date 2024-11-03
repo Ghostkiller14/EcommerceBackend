@@ -40,18 +40,18 @@ public class ProductControllers : ControllerBase{
         }
     }
 
-  // [HttpGet]
-  //  public IActionResult GetAllProducts([FromQuery] int pageNumber=1, [FromQuery] int pageSize=2)
-  // {
-  //   if (pageNumber < 1 || pageSize < 1)
-  //   {
-  //     return BadRequest("Page number and page size must be greater than 0.");
-  //   }
+  [HttpGet("paginated")]
+   public IActionResult GetAllProducts([FromQuery] int pageNumber, [FromQuery] int pageSize)
+  {
+    if (pageNumber < 1 || pageSize < 1)
+    {
+      return BadRequest("Page number and page size must be greater than 0.");
+    }
 
-  //   var PaginatedResult = _productServices.GetAllProducts(pageNumber, pageSize);
-  //   return Ok(PaginatedResult);
+    var PaginatedResult = _productServices.GetAllProducts(pageNumber, pageSize);
+    return Ok(PaginatedResult);
 
-  // }
+  }
 
 
     [HttpGet("{id:guid}")]
@@ -70,6 +70,10 @@ public class ProductControllers : ControllerBase{
           return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
         }
     }
+
+
+
+
 
 
     [HttpGet("product-name/{name}")]

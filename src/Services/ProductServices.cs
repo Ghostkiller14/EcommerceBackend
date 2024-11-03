@@ -61,13 +61,16 @@ public class ProductServices: IProductServices{
       var totalProducts = _appDbContext.Products.Count();
       Console.WriteLine($"{totalProducts}");
 
-      var paginatedProducts = _appDbContext.Products.Skip((pageNumber -1) * pageSize).Take(pageSize).Select(p => new ProductDto {
+      var paginatedProducts = _appDbContext.Products.Include(c => c.Category).Skip((pageNumber -1) * pageSize).Take(pageSize).Select(p => new ProductDto {
 
         ProductId = p.ProductId,
         Name = p.Name,
         Description = p.Description,
         Price = p.Price,
-        CreatedAt = p.CreatedAt
+        CreatedAt = p.CreatedAt,
+        CategoryId = p.CategoryId,
+        Category = p.Category,
+        ImageIDs = p.ImageIDs
       }).ToList();
 
       return new PagedResult<ProductDto> {
