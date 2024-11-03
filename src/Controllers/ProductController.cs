@@ -40,6 +40,23 @@ public class ProductControllers : ControllerBase{
         }
     }
 
+  [HttpGet("sort")]
+  public async Task<IActionResult> SortProducts([FromQuery] QueryParameters queryParams){
+
+    var product = await _productServices.SortProducts(queryParams);
+
+    if(!product.Any()){
+      return ApiResponse.NotFound("No products found To Sort.");
+
+    }
+
+
+
+    return ApiResponse.Success(product, "Products sorted successfully.");
+
+  }
+
+
   [HttpGet("paginated")]
    public IActionResult GetAllProducts([FromQuery] int pageNumber, [FromQuery] int pageSize)
   {

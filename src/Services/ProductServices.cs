@@ -9,6 +9,8 @@ public  interface IProductServices{
     public  Task<List<ProductDto>> FindProductByNameAsync(string name);
     public  Task<bool> DeleteProductByIdServiceAsync(Guid Id);
     public  Task<ProductDto> UpdateProductServiceAsync(Guid Id , UpdateProductDto updateProduct);
+    public  Task<List<ProductDto>> SortProducts(QueryParameters queryParameters);
+
 }
 public class ProductServices: IProductServices{
     private readonly AppDbContext _appDbContext;
@@ -87,6 +89,25 @@ public class ProductServices: IProductServices{
 
 
     }
+
+
+    public async Task<List<ProductDto>> SortProducts(QueryParameters queryParameters){
+
+      var query = _appDbContext.Products.Include(p=> p.Category).AsQueryable();
+
+      if(!string.IsNullOrEmpty(queryParameters.SortBy)){
+        query = queryParameters.SortOrder == "desc" ?
+        query.OrderByDescending(u => EF.Property<object>(u,queryParameters.SortBy)):
+        query.OrderBy(u => EF.Property<object>(u,queryParameters.SortBy));
+      }
+
+      var product = await query.ToListAsync();
+      var productDto = _mapper.Map<List<ProductDto>>(product);
+
+      return productDto;
+
+    }
+
 
 
     public async Task<ProductDto> FindProductByIdServiceAsync(Guid id){
