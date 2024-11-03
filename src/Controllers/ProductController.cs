@@ -27,47 +27,51 @@ public class ProductControllers : ControllerBase{
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetProducts(){
-        try{
-            var products =  await _productServices.GetProductAsync();
+    // [HttpGet]
+    // public async Task<IActionResult> GetProducts(){
+    //     try{
+    //         var products =  await _productServices.GetProductAsync();
 
-            return ApiResponse.Success(products, "Products returned Successfully!");
-        }catch(ApplicationException ex){
-          return ApiResponse.ServerError("Server error: " + ex.Message);
-        }catch(Exception ex){
-          return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
-        }
-    }
+    //         return ApiResponse.Success(products, "Products returned Successfully!");
+    //     }catch(ApplicationException ex){
+    //       return ApiResponse.ServerError("Server error: " + ex.Message);
+    //     }catch(Exception ex){
+    //       return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+    //     }
+    // }
 
-  [HttpGet("sort")]
-  public async Task<IActionResult> SortProducts([FromQuery] QueryParameters queryParams){
+  // [HttpGet("sort")]
+  // public async Task<IActionResult> SortProducts([FromQuery] QueryParameters queryParams){
 
-    var product = await _productServices.SortProducts(queryParams);
+  //   var product = await _productServices.SortProducts(queryParams);
 
-    if(!product.Any()){
-      return ApiResponse.NotFound("No products found To Sort.");
+  //   if(!product.Any()){
+  //     return ApiResponse.NotFound("No products found To Sort.");
 
-    }
-
-
-
-    return ApiResponse.Success(product, "Products sorted successfully.");
-
-  }
+  //   }
 
 
-  [HttpGet("paginated")]
-   public IActionResult GetAllProducts([FromQuery] int pageNumber, [FromQuery] int pageSize)
+
+  //   return ApiResponse.Success(product, "Products sorted successfully.");
+
+  // }
+
+
+  [HttpGet]
+   public async Task<IActionResult> GetAllProducts([FromQuery] QueryParameters queryParams )
   {
-    if (pageNumber < 1 || pageSize < 1)
-    {
-      return BadRequest("Page number and page size must be greater than 0.");
+    Console.WriteLine($"{queryParams}");
+
+    var products =await  _productServices.GetAllProductsServiceAsync(queryParams);
+
+    Console.WriteLine($"{products}");
+
+
+    if(!products.Items.Any()){
+    return ApiResponse.NotFound("No products found.:-)");
+
     }
-
-    var PaginatedResult = _productServices.GetAllProducts(pageNumber, pageSize);
-    return Ok(PaginatedResult);
-
+    return ApiResponse.Success(products, "Products return successfully.");
   }
 
 

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 public  interface IProductServices{
     public  Task<ProductDto> CreateProductServiceAsync(CreateProductDto createProduct);
-    public PagedResult<ProductDto> GetAllProducts(int pageNumber, int pageSize);
+    public Task<PagedResult<ProductDto>> GetAllProductsServiceAsync(QueryParameters queryParameters);
     public  Task<List<ProductDto>> GetProductAsync();
     public  Task<ProductDto> FindProductByIdServiceAsync(Guid Id);
     public  Task<List<ProductDto>> FindProductByNameAsync(string name);
@@ -59,36 +59,65 @@ public class ProductServices: IProductServices{
     }
 
 
-    public PagedResult<ProductDto> GetAllProducts(int pageNumber, int pageSize){
-      var totalProducts = _appDbContext.Products.Count();
-      Console.WriteLine($"{totalProducts}");
 
-      var paginatedProducts = _appDbContext.Products.Include(c => c.Category).Skip((pageNumber -1) * pageSize).Take(pageSize).Select(p => new ProductDto {
+   public async Task<PagedResult<ProductDto>> GetAllProductsServiceAsync(QueryParameters queryParameters)
+{
+    try
+    {
+        var query = _appDbContext.Products.Include(p => p.Category).AsQueryable();
 
-        ProductId = p.ProductId,
-        Name = p.Name,
-        Description = p.Description,
-        Price = p.Price,
-        CreatedAt = p.CreatedAt,
-        CategoryId = p.CategoryId,
-        Category = p.Category,
-        ImageIDs = p.ImageIDs
-      }).ToList();
+        if (!string.IsNullOrEmpty(queryParameters.SearchTerm))
+        {
+            query = query.Where(p => p.Name.ToLower().Contains(queryParameters.SearchTerm.ToLower()));
+        }
 
-      return new PagedResult<ProductDto> {
-      PageNumber = pageNumber,
-      PageSize = pageSize,
-      TotalPages = (int)Math.Ceiling(totalProducts / (double)pageSize),
-      TotalItems = totalProducts,
-      Items = paginatedProducts
-      };
+        if (!string.IsNullOrEmpty(queryParameters.SortBy))
+        {
+            var isValidProperty = typeof(Product).GetProperty(queryParameters.SortBy) != null;
+            if (!isValidProperty)
+            {
+                throw new ArgumentException($"Invalid sorting property: {queryParameters.SortBy}");
+            }
 
+            query = queryParameters.SortOrder == "desc"
+                ? query.OrderByDescending(u => EF.Property<object>(u, queryParameters.SortBy))
+                : query.OrderBy(u => EF.Property<object>(u, queryParameters.SortBy));
+        }
 
+        var totalProducts = await _appDbContext.Products.CountAsync();
 
+        var paginatedProducts = await query
+            .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+            .Take(queryParameters.PageSize)
+            .ToListAsync();
 
+        var productDto = _mapper.Map<List<ProductDto>>(paginatedProducts);
 
-
+        return new PagedResult<ProductDto>
+        {
+            PageNumber = queryParameters.PageNumber,
+            PageSize = queryParameters.PageSize,
+            TotalPages = (int)Math.Ceiling(totalProducts / (double)queryParameters.PageSize),
+            TotalItems = totalProducts,
+            Items = productDto
+        };
     }
+    catch (ArgumentException argEx)
+    {
+        Console.WriteLine($"Argument error: {argEx.Message}");
+        throw new ApplicationException($"An error occurred with the input parameters: {argEx.Message}");
+    }
+    catch (DbUpdateException dbEx)
+    {
+        Console.WriteLine($"Database error related to the update: {dbEx.Message}");
+        throw new ApplicationException("An error occurred while saving the data to the database");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+        throw new ApplicationException("An unexpected error has occurred");
+    }
+}
 
 
     public async Task<List<ProductDto>> SortProducts(QueryParameters queryParameters){
@@ -107,7 +136,6 @@ public class ProductServices: IProductServices{
       return productDto;
 
     }
-
 
 
     public async Task<ProductDto> FindProductByIdServiceAsync(Guid id){
