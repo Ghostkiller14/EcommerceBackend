@@ -60,64 +60,53 @@ public class ProductServices: IProductServices{
 
 
 
-   public async Task<PagedResult<ProductDto>> GetAllProductsServiceAsync(QueryParameters queryParameters)
-{
-    try
-    {
-        var query = _appDbContext.Products.Include(p => p.Category).AsQueryable();
+    public async Task<PagedResult<ProductDto>> GetAllProductsServiceAsync(QueryParameters queryParameters){
 
-        if (!string.IsNullOrEmpty(queryParameters.SearchTerm))
-        {
-            query = query.Where(p => p.Name.ToLower().Contains(queryParameters.SearchTerm.ToLower()));
+
+      try{
+
+
+         var query = _appDbContext.Products.Include(p=> p.Category).AsQueryable();
+
+        if(!string.IsNullOrEmpty(queryParameters.SearchTerm)){
+          query = query.Where(p => p.Name.ToLower().Contains(queryParameters.SearchTerm.ToLower()));
+          }
+
+
+      if(!string.IsNullOrEmpty(queryParameters.SortBy)){
+        query = queryParameters.SortOrder == "desc" ?
+        query.OrderByDescending(u => EF.Property<object>(u,queryParameters.SortBy)):
+        query.OrderBy(u => EF.Property<object>(u,queryParameters.SortBy));
+      }
+
+      var totalProducts = await  _appDbContext.Products.CountAsync();
+
+      var paginatedProducts =await  query.Skip((queryParameters.PageNumber -1) * queryParameters.PageSize).Take(queryParameters.PageSize).ToListAsync();
+
+
+      var productDto = _mapper.Map<List<ProductDto>>(paginatedProducts);
+
+
+      return new PagedResult<ProductDto> {
+
+      PageNumber = queryParameters.PageNumber,
+      PageSize = queryParameters.PageSize,
+      TotalPages = (int)Math.Ceiling(totalProducts / (double)queryParameters.PageSize),
+      TotalItems = totalProducts,
+      Items = productDto
+
+      };
+
+      } catch (DbUpdateException dbEx){
+            Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+            throw new ApplicationException("An error has occurred while saving the data to the database");
+        }
+        catch (Exception ex){
+            Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error has occurred");
         }
 
-        if (!string.IsNullOrEmpty(queryParameters.SortBy))
-        {
-            var isValidProperty = typeof(Product).GetProperty(queryParameters.SortBy) != null;
-            if (!isValidProperty)
-            {
-                throw new ArgumentException($"Invalid sorting property: {queryParameters.SortBy}");
-            }
-
-            query = queryParameters.SortOrder == "desc"
-                ? query.OrderByDescending(u => EF.Property<object>(u, queryParameters.SortBy))
-                : query.OrderBy(u => EF.Property<object>(u, queryParameters.SortBy));
-        }
-
-        var totalProducts = await _appDbContext.Products.CountAsync();
-
-        var paginatedProducts = await query
-            .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
-            .Take(queryParameters.PageSize)
-            .ToListAsync();
-
-        var productDto = _mapper.Map<List<ProductDto>>(paginatedProducts);
-
-        return new PagedResult<ProductDto>
-        {
-            PageNumber = queryParameters.PageNumber,
-            PageSize = queryParameters.PageSize,
-            TotalPages = (int)Math.Ceiling(totalProducts / (double)queryParameters.PageSize),
-            TotalItems = totalProducts,
-            Items = productDto
-        };
     }
-    catch (ArgumentException argEx)
-    {
-        Console.WriteLine($"Argument error: {argEx.Message}");
-        throw new ApplicationException($"An error occurred with the input parameters: {argEx.Message}");
-    }
-    catch (DbUpdateException dbEx)
-    {
-        Console.WriteLine($"Database error related to the update: {dbEx.Message}");
-        throw new ApplicationException("An error occurred while saving the data to the database");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
-        throw new ApplicationException("An unexpected error has occurred");
-    }
-}
 
 
     public async Task<List<ProductDto>> SortProducts(QueryParameters queryParameters){
