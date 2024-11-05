@@ -14,7 +14,7 @@ public class UserControllers: ControllerBase {
 
   // I don't think we need to create user anymore because we are using the Regester Authntication but it might be used for the admin if he want to creat a user for somone, right now i think there is no need but later we might use it.
 
-   [Authorize(Roles = "Admin")]
+   //[Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody]CreateUserDto createdUser){
     if (!ModelState.IsValid){
@@ -33,7 +33,7 @@ public class UserControllers: ControllerBase {
 
 
 
-        [Authorize(Roles = "User")]
+       // [Authorize(Roles = "User")]
         [HttpGet("profile")]
         public IActionResult GetUserProfile()
         {
@@ -42,7 +42,7 @@ public class UserControllers: ControllerBase {
 
 
 
-  [Authorize(Roles = "Admin")]
+  //[Authorize(Roles = "Admin")]
   [HttpGet]
   public async Task<IActionResult> GetUsers(){
     try{

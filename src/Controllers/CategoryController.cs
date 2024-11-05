@@ -8,7 +8,7 @@ public class CategoryController : ControllerBase {
     public CategoryController(ICategoryServices categoryService) {
         _categoryService = categoryService;
     }
-   [Authorize(Roles = "Admin")]
+   //[Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto newCategory) {
         if (!ModelState.IsValid) {
@@ -26,7 +26,7 @@ public class CategoryController : ControllerBase {
         }
     }
 
-   [Authorize(Roles = "Admin")]
+   //[Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetCategories() {
         try {
@@ -42,7 +42,7 @@ public class CategoryController : ControllerBase {
     }
 
 
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCategoryById(Guid id){
         var category = await _categoryService.DeleteCategoryByIdServiceAsync(id);
