@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController, Route("/api/v1/categories")]
 
@@ -7,7 +8,7 @@ public class CategoryController : ControllerBase {
     public CategoryController(ICategoryServices categoryService) {
         _categoryService = categoryService;
     }
-
+   [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto newCategory) {
         if (!ModelState.IsValid) {
@@ -25,6 +26,7 @@ public class CategoryController : ControllerBase {
         }
     }
 
+   [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetCategories() {
         try {
@@ -38,6 +40,9 @@ public class CategoryController : ControllerBase {
             return ApiResponse.ServerError("Server error: " + ex.Message);
         }
     }
+
+
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCategoryById(Guid id){
         var category = await _categoryService.DeleteCategoryByIdServiceAsync(id);

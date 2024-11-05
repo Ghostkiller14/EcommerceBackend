@@ -59,18 +59,14 @@ public class ProductServices: IProductServices{
     }
 
 
-
     public async Task<PagedResult<ProductDto>> GetAllProductsServiceAsync(QueryParameters queryParameters){
-
-
       try{
-
 
          var query = _appDbContext.Products.Include(p=> p.Category).AsQueryable();
 
-        if(!string.IsNullOrEmpty(queryParameters.SearchTerm)){
+      if(!string.IsNullOrEmpty(queryParameters.SearchTerm)){
           query = query.Where(p => p.Name.ToLower().Contains(queryParameters.SearchTerm.ToLower()));
-          }
+        }
 
 
       if(!string.IsNullOrEmpty(queryParameters.SortBy)){
