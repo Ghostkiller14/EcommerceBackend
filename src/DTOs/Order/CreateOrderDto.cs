@@ -8,7 +8,7 @@ public class  CreateOrderDto{
 
     public Guid UserId {get;set;}
 
-       public ICollection<CreateOrderItemDto> OrderItem { get; set; }
+       public ICollection<CreateOrderItemDto> OrderItems { get; set; } =new List<CreateOrderItemDto>();
 
 
 

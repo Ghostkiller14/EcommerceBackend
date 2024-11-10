@@ -20,7 +20,12 @@ using System.Text;
         public async Task<IActionResult> Register([FromBody] UserRegisterDto userRegisterDto){
 
           try{
+
+            Console.WriteLine($"test1");
+
             var result = await _authService.RegisterUserService(userRegisterDto);
+                        Console.WriteLine($"test2");
+
 
                 if (!ModelState.IsValid){
                     return BadRequest(ModelState);

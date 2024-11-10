@@ -16,7 +16,7 @@ public class Order{
   public Guid UserId{get;set;} // Forign Key
 
 
-  [JsonIgnore]
+    [JsonIgnore]
       public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
   }

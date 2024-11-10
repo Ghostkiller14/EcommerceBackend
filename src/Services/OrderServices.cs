@@ -38,7 +38,7 @@ public class OrderService:IOrderService
         };
 
         // Add OrderItems
-        foreach (var orderItemDto in createOrderDto.OrderItem)
+        foreach (var orderItemDto in createOrderDto.OrderItems)
         {
             var orderProduct = new OrderItem
             {
@@ -112,7 +112,7 @@ public class OrderService:IOrderService
 
         // Clear existing products and add updated products
         order.OrderItems.Clear();
-        foreach (var orderProductDto in updateOrderDto.OrderItem)
+        foreach (var orderProductDto in updateOrderDto.OrderItems)
         {
             var orderProduct = new OrderItem
             {
