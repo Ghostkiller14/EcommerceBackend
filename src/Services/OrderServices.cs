@@ -27,53 +27,56 @@ public class OrderService:IOrderService
     }
 
     // Create a new order
-    public async Task<OrderDto> CreateOrderAsync(CreateOrderDto createOrderDto)
+ public async Task<OrderDto> CreateOrderAsync(CreateOrderDto createOrderDto)
+{
+    try
     {
-      try{
-
         var order = new Order
         {
             UserId = createOrderDto.UserId,
             CreatedAt = DateTime.UtcNow
         };
 
-        foreach (var OrderItemDto in createOrderDto.OrderItem)
+        // Add OrderItems
+        foreach (var orderItemDto in createOrderDto.OrderItem)
         {
-          // check whether this product is existed or not
-          // quantity or stock
-           var orderProduct = new OrderItem
-           {
-        ProductId = OrderItemDto.ProductId,
-        Quantity = OrderItemDto.Quantity,
-        Price = OrderItemDto.Price
-        };
-        order.OrderItem.Add(orderProduct);
+            var orderProduct = new OrderItem
+            {
+                ProductId = orderItemDto.ProductId,
+                Quantity = orderItemDto.Quantity,
+                Price = orderItemDto.Price
+            };
 
+            // Add OrderItem to the order's OrderItem collection
+            order.OrderItems.Add(orderProduct);
         }
 
-
+        // Add the order to the DbContext
         await _appDbContext.Orders.AddAsync(order);
         await _appDbContext.SaveChangesAsync();
 
+        // Map Order entity to OrderDto and return
         var orderDto = _mapper.Map<OrderDto>(order);
         return orderDto;
-      }
-       catch(DbUpdateException ex){
-            Console.WriteLine($"Database Update Err: {ex.Message}");
-            throw new ApplicationException("A DB Error Happened during the creation of the Product");
-        }catch(Exception ex){
-            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            throw new ApplicationException("An unexpected error occurred. Please try again later.");
-
     }
-  }
+    catch (DbUpdateException ex)
+    {
+        Console.WriteLine($"Database Update Error: {ex.Message}");
+        throw new ApplicationException("A DB error happened during the creation of the Order");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+        throw new ApplicationException("An unexpected error occurred. Please try again later.");
+    }
+}
 
     // Get order by ID
     public async Task<OrderDto?> GetOrderByIdAsync(Guid orderId)
     {
       try{
        var order = await _appDbContext.Orders
-        .Include(o => o.OrderItem)
+        .Include(o => o.OrderItems)
         .ThenInclude(op => op.Product)  // Include Product details
         .Include(o => o.User)  // Include User details
         .FirstOrDefaultAsync(o => o.OrderId == orderId);
@@ -101,14 +104,14 @@ public class OrderService:IOrderService
 
       try{
         var order = await _appDbContext.Orders
-            .Include(o => o.OrderItem)
+            .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
         if (order == null)
             return null;
 
         // Clear existing products and add updated products
-        order.OrderItem.Clear();
+        order.OrderItems.Clear();
         foreach (var orderProductDto in updateOrderDto.OrderItem)
         {
             var orderProduct = new OrderItem
@@ -118,7 +121,7 @@ public class OrderService:IOrderService
                 Price = orderProductDto.Price
             };
 
-            order.OrderItem.Add(orderProduct);
+            order.OrderItems.Add(orderProduct);
         }
 
         _appDbContext.Orders.Update(order);
@@ -142,7 +145,7 @@ public class OrderService:IOrderService
     {
       try{
         var order = await _appDbContext.Orders
-            .Include(o => o.OrderItem)
+            .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
         if (order == null)

@@ -52,7 +52,6 @@ public class CategoryService : ICategoryServices{
             throw new ApplicationException("An unexpected error occurred. Please try again later.");
         }
     }
-
     public async Task<bool> DeleteCategoryByIdServiceAsync(Guid Id){
         try
         {
@@ -72,4 +71,6 @@ public class CategoryService : ICategoryServices{
             throw new ApplicationException("An unexpected error occurred. Please try again later.");
         }
     }
+
+
 }

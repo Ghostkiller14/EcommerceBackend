@@ -86,12 +86,12 @@ public class AppDbContext : DbContext{
 
                modelBuilder.Entity<OrderItem>()
                .HasOne(op => op.Order)
-               .WithMany(o => o.OrderItem)
+               .WithMany(o => o.OrderItems)
                .HasForeignKey(op => op.OrderId);
 
                modelBuilder.Entity<OrderItem>()
                .HasOne(op => op.Product)
-               .WithMany(p => p.OrderItem)
+               .WithMany(p => p.OrderItems)
                .HasForeignKey(op => op.ProductId);
 
 

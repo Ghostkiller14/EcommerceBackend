@@ -269,13 +269,13 @@ namespace Backend.Migrations
             modelBuilder.Entity("OrderItem", b =>
                 {
                     b.HasOne("Order", "Order")
-                        .WithMany("OrderItem")
+                        .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Product", "Product")
-                        .WithMany("OrderItem")
+                        .WithMany("OrderItems")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -314,12 +314,12 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Order", b =>
                 {
-                    b.Navigation("OrderItem");
+                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("Product", b =>
                 {
-                    b.Navigation("OrderItem");
+                    b.Navigation("OrderItems");
 
                     b.Navigation("Ratings");
                 });
