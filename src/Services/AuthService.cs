@@ -71,43 +71,33 @@ using Microsoft.IdentityModel.Tokens;
             return token;
         }
 
-        public string GenerateJwtToken(User user)
+     public string GenerateJwtToken(User user)
+{
+    var tokenHandler = new JwtSecurityTokenHandler();
+
+    var jwtKey = Environment.GetEnvironmentVariable("JWT__KEY") ?? throw new InvalidOperationException("JWT Key is missing in environment variables.");
+    var jwtIssuer = Environment.GetEnvironmentVariable("JWT__ISSUER") ?? throw new InvalidOperationException("JWT Issuer is missing in environment variables.");
+    var jwtAudience = Environment.GetEnvironmentVariable("JWT__AUDIENCE") ?? throw new InvalidOperationException("JWT Audience is missing in environment variables.");
+
+    var key = Encoding.ASCII.GetBytes(jwtKey);
+
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new ClaimsIdentity(new[]
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()), // User's ID claim
+            new Claim(ClaimTypes.Name, user.UserName),                     // User's name claim
+            new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")    // User's role claim
+        }),
+        Expires = DateTime.UtcNow.AddMinutes(5),
+        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+        Issuer = jwtIssuer,
+        Audience = jwtAudience
+    };
 
-          var jwtKey = Environment.GetEnvironmentVariable("JWT__KEY") ?? throw new InvalidOperationException("JWT Key is missing in environment variables.");
-         var jwtIssuer = Environment.GetEnvironmentVariable("JWT__ISSUER") ?? throw new InvalidOperationException("JWT Issuer is missing in environment variables.");
-        var jwtAudience = Environment.GetEnvironmentVariable("JWT__AUDIENCE") ?? throw new InvalidOperationException("JWT Audience is missing in environment variables.");
-
-            var key = Encoding.ASCII.GetBytes(jwtKey);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-
-                Subject = new ClaimsIdentity(new[]
-                {
-
-                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User") // User's role, determining access level.
-            }),
-                Expires = DateTime.UtcNow.AddMinutes(5), // Set the token to expire in 1 minute from creation.
-                // Expires = DateTime.UtcNow.AddDays(2), // Set the token to expire in 2 hours from creation.
-                // Expires = DateTime.UtcNow.AddHours(2),
-
-                // The signing credentials contain the security key and the algorithm used for signature validation.
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-
-
-                // optional
-                Issuer = jwtIssuer,// "iss" (issuer) claim: The issuer of the token.
-                Audience =  jwtAudience// "aud" (audience) claim: Intended recipient of the token.
-            };
-
-            // Create the token based on the descriptor.
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            // Serialize the token to a JWT string.
-            return tokenHandler.WriteToken(token);
-        }
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    return tokenHandler.WriteToken(token);
+}
 
 
     }
