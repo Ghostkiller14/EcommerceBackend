@@ -54,7 +54,7 @@ public class UserControllers: ControllerBase {
     }
   }
 
-  [Authorize(Roles = "Admin")]
+  //[Authorize(Roles = "Admin")]
   [HttpGet("{id}")]
   public async Task<IActionResult> FindUserById(Guid id){
     try{
@@ -68,7 +68,7 @@ public class UserControllers: ControllerBase {
     }
   }
 
-  [Authorize(Roles = "Admin")]
+  //[Authorize(Roles = "Admin")]
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteUserById(Guid id){
     try{
@@ -84,7 +84,7 @@ public class UserControllers: ControllerBase {
   }
 
 
-  [Authorize(Roles = "Admin")]
+  //[Authorize(Roles = "Admin")]
   [HttpPut("{id}")]
   public async Task<IActionResult> UpdateUserById(Guid id, UpdateUserDto updateUser){
     if (!ModelState.IsValid){
