@@ -23,6 +23,8 @@ public class MappingProfile : Profile{
         .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
         CreateMap<Order , OrderDto>();
+        CreateMap<Order , List<OrderDto>>();
+
         CreateMap<CreateOrderDto , Order>();
         CreateMap<UpdateOrderDto , Order>()
         .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

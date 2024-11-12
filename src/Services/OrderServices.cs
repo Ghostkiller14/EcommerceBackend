@@ -9,8 +9,7 @@ public interface IOrderService{
     public  Task<OrderDto?> UpdateOrderAsync(Guid orderId, CreateOrderDto updateOrderDto);
 
     public  Task<bool> DeleteOrderByIdAsync(Guid orderId);
-
-
+    public Task<List<OrderDto>?> GetAllOrdersServiceAsync();
 }
 
 
@@ -97,6 +96,39 @@ public class OrderService:IOrderService
 
     }
   }
+
+
+    public async Task<List<OrderDto>?> GetAllOrdersServiceAsync(){
+
+      try{
+
+        var orders = await _appDbContext.Orders.Include(o => o.OrderItems)
+        .ThenInclude(op => op.Product)
+        .Include(o => o.User).ToListAsync();
+
+
+          if (orders == null)
+            return null;
+
+
+        return _mapper.Map<List<OrderDto>>(orders);
+
+      }catch(DbUpdateException ex){
+            Console.WriteLine($"Database Update Err: {ex.Message}");
+            throw new ApplicationException("A DB Error Happened during the creation of the Product");
+        }catch(Exception ex){
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error occurred. Please try again later.");
+
+
+    }
+
+
+
+
+
+    }
+
 
     // Update an order
     public async Task<OrderDto?> UpdateOrderAsync(Guid orderId, CreateOrderDto updateOrderDto)

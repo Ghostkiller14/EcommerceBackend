@@ -12,6 +12,29 @@ public class OrderController : ControllerBase
         _orderService = orderService;
     }
 
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllOrder(){
+      try{
+
+        var orders = await  _orderService.GetAllOrdersServiceAsync();
+
+        if(orders == null){
+          return ApiResponse.NotFound("There is no order Founds");
+        }
+
+        return ApiResponse.Success(orders, "All orders has returned Successfully :-)");
+
+      }catch(ApplicationException ex){
+          return ApiResponse.ServerError("Server error: " + ex.Message);
+        }catch(Exception ex){
+          return ApiResponse.ServerError("unexpected error has happened: " + ex.Message);
+        }
+
+
+
+    }
+
     // POST: /api/orders
     [HttpPost]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto createOrderDto)
