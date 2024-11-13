@@ -87,14 +87,23 @@ public class UserControllers: ControllerBase {
   //[Authorize(Roles = "Admin")]
   [HttpPut("{id}")]
   public async Task<IActionResult> UpdateUserById(Guid id, UpdateUserDto updateUser){
+
+                      Console.WriteLine($"testController55");
+
     if (!ModelState.IsValid){
       return ApiResponse.BadRequest("Invalid Update Data");
     }
 
     try{
+      Console.WriteLine($"testController");
+
       var userData = await _userServices.UpdateUserServiceAsync(id, updateUser);
+            Console.WriteLine($"testController2");
+
       return ApiResponse.Success(userData, "User has been Updated!");
     }catch(Exception ex){
+                  Console.WriteLine($"testController3");
+
       return ApiResponse.BadRequest("Server Error: " + ex.Message);
     }
   }

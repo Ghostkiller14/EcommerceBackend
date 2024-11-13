@@ -7,9 +7,8 @@ public class MappingProfile : Profile {
         CreateMap<CreateUserDto, User>();
 
         CreateMap<UpdateUserDto, User>()
-            .ForMember(dest => dest.Password, opt => opt.Condition(src => src.Password != null))
+            .ForMember(dest => dest.Password, opt => opt.Ignore()) // Ignore Password field in mapping
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
         CreateMap<Product, ProductDto>();
         CreateMap<CreateProductDto, Product>();
         CreateMap<UpdateProductDto, Product>()

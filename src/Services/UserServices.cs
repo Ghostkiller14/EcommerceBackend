@@ -64,7 +64,7 @@ public class UserServices : IUserServices
       throw new ApplicationException("An unexpected error has occurred");
     }
   }
-  
+
   public async Task<UserDto> FindUserByIdServiceAsync(Guid Id)
   {
     try
@@ -122,33 +122,48 @@ public class UserServices : IUserServices
   }
 
   public async Task<UserDto> UpdateUserServiceAsync(Guid Id, UpdateUserDto updateUser)
-  {
+{
     try
     {
-      var findUser = await _appDbContext.Users.FindAsync(Id);
 
-      if (findUser == null)
-      {
-        return null;
-      }
-      
-      _mapper.Map(updateUser, findUser);
+        var findUser = await _appDbContext.Users.FindAsync(Id);
 
-      _appDbContext.Users.Update(findUser);
-      await _appDbContext.SaveChangesAsync();
+        if (findUser == null)
+        {
+            return null;
+        }
 
-      var userData = _mapper.Map<UserDto>(findUser);
-      return userData;
+
+
+        if (!string.IsNullOrEmpty(updateUser.Password))
+        {
+            findUser.Password = BCrypt.Net.BCrypt.HashPassword(updateUser.Password);
+        }
+
+
+
+        // Map other properties
+        _mapper.Map(updateUser, findUser);
+
+
+        _appDbContext.Users.Update(findUser);
+        await _appDbContext.SaveChangesAsync();
+
+
+        var userData = _mapper.Map<UserDto>(findUser);
+
+        return userData;
     }
     catch (DbUpdateException dbEx)
     {
-      Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
-      throw new ApplicationException("An error has occurred while saving the data to the database");
+        Console.WriteLine($"Database error related to the updated has happened {dbEx.Message}");
+        throw new ApplicationException("An error has occurred while saving the data to the database");
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
-      throw new ApplicationException("An unexpected error has occurred");
+        Console.WriteLine($"An unexpected error has occurred: {ex.Message}");
+        throw new ApplicationException("An unexpected error has occurred");
     }
-  }
+}
+
 }
