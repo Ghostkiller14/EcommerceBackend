@@ -1,17 +1,16 @@
 using AutoMapper;
-
-public class MappingProfile : Profile{
-    public MappingProfile(){
+public class MappingProfile : Profile {
+    public MappingProfile() {
         CreateMap<User, UserDto>();
         CreateMap<UserRegisterDto, User>();
         CreateMap<UserLoginDto, User>();
         CreateMap<CreateUserDto, User>();
 
         CreateMap<UpdateUserDto, User>()
+            .ForMember(dest => dest.Password, opt => opt.Condition(src => src.Password != null))
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
         CreateMap<Product, ProductDto>();
-
         CreateMap<CreateProductDto, Product>();
         CreateMap<UpdateProductDto, Product>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
@@ -38,8 +37,5 @@ public class MappingProfile : Profile{
         .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
         CreateMap<OrderItem, OrderItemDto>();
-
-             // Map product name
-
     }
 }
