@@ -95,7 +95,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", policyBuilder =>
     {
-        policyBuilder.WithOrigins("http://localhost:5173")
+        policyBuilder.WithOrigins("https://alalawiexpress.netlify.app")
             .AllowAnyHeader()
             .AllowAnyMethod() // Allows all HTTP methods
             .AllowCredentials();

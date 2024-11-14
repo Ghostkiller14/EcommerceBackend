@@ -141,8 +141,6 @@ public class UserServices : IUserServices
         }
 
 
-
-        // Map other properties
         _mapper.Map(updateUser, findUser);
 
 
