@@ -41,6 +41,29 @@ public class CategoryController : ControllerBase {
         }
     }
 
+  [HttpGet("{id:guid}")]
+
+  public async Task<IActionResult> getCategoryById(Guid id){
+
+    try{
+
+      var category = _categoryService.GetCategoryById(id);
+      if(category == null){
+        return ApiResponse.NotFound("The Category you trying to find is not exist");
+      }
+      return ApiResponse.Success(category, "Categort is found successfully");
+
+    }  catch (ApplicationException ex) {
+            return ApiResponse.ServerError("Server error: " + ex.Message);
+        }
+        catch (System.Exception ex) {
+            return ApiResponse.ServerError("Server error: " + ex.Message);
+        }
+
+  }
+
+
+
 
     //[Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]

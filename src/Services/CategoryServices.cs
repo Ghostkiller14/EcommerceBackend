@@ -5,6 +5,8 @@ public  interface ICategoryServices{
     public  Task<Category> CreateCategoryServiceAsync(CreateCategoryDto createCategory);
     public  Task<List<CategoryDto>> GetCategoryServiceAsync();
     public  Task<bool> DeleteCategoryByIdServiceAsync(Guid Id);
+    public Task<CategoryDto> GetCategoryById(Guid categoryId);
+
 }
 
 public class CategoryService : ICategoryServices{
@@ -52,6 +54,40 @@ public class CategoryService : ICategoryServices{
             throw new ApplicationException("An unexpected error occurred. Please try again later.");
         }
     }
+
+
+  public async Task<CategoryDto> GetCategoryById(Guid categoryId){
+
+
+    try{
+      var findCategory = await  _appDbContext.Categories.FindAsync(categoryId);
+
+      if(findCategory == null){
+        return null;
+      }
+
+      var getCategoryById = await _appDbContext.Categories.Include(p=>p.Products).FirstOrDefaultAsync(c => c.CategoryId == categoryId);
+
+      return _mapper.Map<CategoryDto>(getCategoryById);
+
+    } catch (DbUpdateException dbEx){
+            Console.WriteLine($"Database Update Error: {dbEx.Message}");
+            throw new ApplicationException("An error occurred while saving to the database. Please check the data and try again.");
+        }
+        catch (Exception ex){
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            throw new ApplicationException("An unexpected error occurred. Please try again later.");
+        }
+
+
+
+
+
+  }
+
+
+
+
     public async Task<bool> DeleteCategoryByIdServiceAsync(Guid Id){
         try
         {
